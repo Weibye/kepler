@@ -11,8 +11,6 @@ use bevy::prelude::Res;
 use bevy::prelude::info;
 use bevy::prelude::{ Plugin, ResMut, State, IntoSystem, SystemSet };
 
-// use bevy_flycam::PlayerPlugin;
-
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
 pub enum GameState {
     /// Loading of all the things in the world
@@ -90,7 +88,6 @@ fn transition_playing(mut game_state: ResMut<State<GameState>>) {
     info!("Transition to{:?}", GameState::Playing);
     game_state.set(GameState::Playing).unwrap();
 }
-
 
 fn transition_menu(mut game_state: ResMut<State<GameState>>) {
     info!("Transition to{:?}", GameState::Menu);

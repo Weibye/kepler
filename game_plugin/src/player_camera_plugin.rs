@@ -1,5 +1,5 @@
-use bevy::{math::{Mat3, Mat4, Quat, Vec3}, prelude::*};
-use bevy_mod_picking::{BoundVol, HighlightablePickingPlugin, InteractablePickingPlugin, PickableBundle, PickingCameraBundle, PickingEvent, PickingPlugin};
+use bevy::{math::{Mat3, Mat4, Quat, Vec3}, prelude::*, render::camera::Camera};
+use bevy_mod_picking::{BoundVol, HighlightablePickingPlugin, InteractablePickingPlugin, PickableBundle, PickingCameraBundle, PickingEvent, PickingPlugin, SelectionEvent};
 
 use crate::{GameState, orbit_plugin::OrbitalBody};
 
@@ -24,6 +24,7 @@ impl Plugin for PlayerCameraPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(print_events.system().after("end"))
+                    .with_system(center_camera.system().after("end"))
             )
         ;
     }
@@ -31,7 +32,7 @@ impl Plugin for PlayerCameraPlugin {
 
 // Spawn camera
 fn camera_setup(mut commands: Commands,) {
-    let camera_position = Vec3::ONE * 4.0;
+    let camera_position = Vec3::ONE * 2.0;
     let camera_target = Vec3::ZERO;
 
     commands
@@ -83,6 +84,51 @@ fn quat_look_at(forward: Vec3, up: Vec3) -> Quat {
 
 pub fn print_events(mut events: EventReader<PickingEvent>) {
     for event in events.iter() {
+        // match event {
+        //     PickingEvent::Selection(selection) => {
+        //         match selection {
+        //             SelectionEvent::JustSelected(entity) => todo!(),
+        //             SelectionEvent::JustDeselected(_) => todo!(),
+        //         }
+        //     },
+        //     PickingEvent::Hover(_) => continue,
+        // }
         warn!("This event happened! {:?}", event);
+    }
+}
+
+fn center_camera(
+    mut events: EventReader<PickingEvent>,
+    mut q: Query<&mut Transform, With<Camera>>,
+    q_targets: Query<(Entity, &GlobalTransform), With<OrbitalBody>>, 
+) {
+    let mut just_selected: Vec<&Entity> = Vec::new();
+    for event in events.iter() {
+        match event {
+            PickingEvent::Selection(selection) => {
+                match selection {
+                    SelectionEvent::JustSelected(entity) => {
+                        just_selected.push(entity);
+                    }
+                    _ => continue,
+                }
+            },
+            _ => continue,
+        }
+    }
+
+    if just_selected.len() > 0 {
+        let selected = just_selected[0];
+        match q.single_mut() {
+            Ok(mut camera_transform) => {
+                match q_targets.get(*selected) {
+                    Ok((_, selected_global_transform)) => { 
+                        camera_transform.rotation = quat_look_at(camera_transform.translation - selected_global_transform.translation, Vec3::Y);
+                    }
+                    Err(_) => todo!(),
+                }
+            }
+            Err(_) => todo!(),
+        }
     }
 }
