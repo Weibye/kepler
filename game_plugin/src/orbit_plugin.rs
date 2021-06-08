@@ -3,27 +3,37 @@ use std::{f32::consts::PI, ops::Rem};
 // use crate::GameState;
 use bevy::{app::AppBuilder, pbr::PbrBundle, prelude::*};
 use bevy_prototype_debug_lines::{DebugLines, DebugLinesPlugin};
-use rand::{Rng, prelude::ThreadRng};
+use rand::Rng;
 
-use crate::orbit::{Orbit, OrbitalPositions, orbital_position_at_true_anomaly};
+use crate::{GameState, orbit::{Orbit, OrbitalPositions, orbital_position_at_true_anomaly}};
+
 
 pub struct OrbitPlugin;
 
 impl Plugin for OrbitPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
+            // TODO: Separate out orbital debug plugin from actual orbit plugin
+            // In order to draw debug lines
             .add_plugin(DebugLinesPlugin)
-            .add_startup_system(reference_plane.system())
-            .add_startup_system(create_orbits.system())
-            .add_system(move_planets.system())
-            .add_system(rotate_orbital_bodies.system())
-            .add_system(orbit_visuals.system())
+            // 
+            .add_system_set(
+                SystemSet::on_enter(GameState::Loading)
+                    .with_system(create_orbits.system().before("end").after("start"))
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing)
+                    .with_system(move_planets.system())
+                    .with_system(rotate_orbital_bodies.system())
+                    .with_system(orbit_visuals.system())
+            )
         ;
     }
 }
 
+
 #[derive(Debug, Copy, Clone)]
-struct OrbitalBody {
+pub struct OrbitalBody {
     mass: f32,
     radius: f32,
     angular_velocity: f32,
@@ -35,6 +45,7 @@ fn create_orbits(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>
 ) {
+    println!("Creating orbits");
     let mut rng = rand::thread_rng();
     let reference_forward = -Vec3::Z;
     let reference_up = Vec3::Y;
