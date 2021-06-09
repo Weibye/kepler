@@ -1,5 +1,5 @@
 [package]
-name = "space_pilot"
+name = "kepler"
 version = "0.1.0"
 authors = ["Andreas Weibye <13300393+Weibye@users.noreply.github.com>"]
 edition = "2018"

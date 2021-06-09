@@ -13,7 +13,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 800.,
             height: 600.,
-            title: "Space Pilot".to_string(),
+            title: "Kepler".to_string(),
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
