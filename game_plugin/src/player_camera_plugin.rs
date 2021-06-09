@@ -1,7 +1,7 @@
-use bevy::{math::{Mat3, Mat4, Quat, Vec3}, prelude::*, render::camera::Camera};
+use bevy::{math::{Mat3, Mat4, Quat, Vec3}, prelude::*};
 use bevy_mod_picking::*;
 
-use crate::{GameState, orbit_plugin::{OrbitalBody, ReferenceFrame, Sun}};
+use crate::{GameState, orbit_plugin::{OrbitalBody, Sun}};
 
 pub struct PlayerCameraPlugin;
 
