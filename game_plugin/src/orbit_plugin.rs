@@ -38,7 +38,8 @@ pub struct OrbitalBody {
     radius: f32,
     angular_velocity: f32,
 }
-struct ReferenceFrame;
+pub struct ReferenceFrame;
+pub struct Sun;
 
 fn create_orbits(
     mut commands: Commands,
@@ -74,6 +75,7 @@ fn create_orbits(
                     mesh: meshes.add(Mesh::from(shape::Icosphere { radius: sun_body.radius, subdivisions: 1 })), 
                     ..Default::default()
                 })
+                .insert(Sun)
             ;
 
             for _ in 0..3 {

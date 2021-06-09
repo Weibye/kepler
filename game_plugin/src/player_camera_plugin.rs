@@ -1,7 +1,7 @@
 use bevy::{math::{Mat3, Mat4, Quat, Vec3}, prelude::*, render::camera::Camera};
 use bevy_mod_picking::*;
 
-use crate::{GameState, orbit_plugin::OrbitalBody};
+use crate::{GameState, orbit_plugin::{OrbitalBody, ReferenceFrame, Sun}};
 
 pub struct PlayerCameraPlugin;
 
@@ -12,15 +12,19 @@ impl Plugin for PlayerCameraPlugin {
             .add_plugin(InteractablePickingPlugin)
             .add_plugin(HighlightablePickingPlugin)
 
-            .insert_resource(CameraTarget(Vec3::ZERO))
+            // Resources
+            .insert_resource(PlayerCameraSettings {
+                offset: Vec3::ONE * 2.0 
+            })
 
             .add_system_set(
                 SystemSet::on_enter(GameState::Loading)
-                    .with_system(camera_setup.system().before("end").after("start"))
+                    
             )
             .add_system_set(
                 SystemSet::on_enter(GameState::PostLoad)
                     .with_system(make_oribtal_bodies_pickable.system().before("end").after("start"))
+                    .with_system(camera_setup.system().before("end").after("start"))
             )
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
@@ -32,28 +36,42 @@ impl Plugin for PlayerCameraPlugin {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+struct PlayerCamera {
+    target: Entity
+}
+
 #[derive(Debug, Copy, Clone, Default)]
-struct CameraTarget(Vec3);
+struct PlayerCameraSettings {
+    pub offset: Vec3
+}
 
 // Spawn camera
-fn camera_setup(mut commands: Commands,) {
-    let camera_position = Vec3::ONE * 2.0;
-    let camera_target = Vec3::ZERO;
-
-    commands
-        .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform {
-                translation: camera_position,
-                rotation: quat_look_at(camera_position - camera_target, Vec3::Y),
+fn camera_setup(
+    mut commands: Commands,
+    q: Query<(Entity, &GlobalTransform), With<Sun>>,
+    settings: Res<PlayerCameraSettings>,
+) {
+    if let Ok((target, target_transform)) = q.single() {
+        commands
+            .spawn_bundle(PerspectiveCameraBundle {
+                transform: Transform {
+                    translation: settings.offset,
+                    rotation: quat_look_at(settings.offset - target_transform.translation, Vec3::Y),
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            ..Default::default()
-        })
-        // Mark for picking with this camera
-        .insert_bundle(PickingCameraBundle::default())
-        .insert(BoundVol::default())
-    ;
-
+            })
+            // Mark for picking with this camera
+            .insert_bundle(PickingCameraBundle::default())
+            .insert(BoundVol::default())
+            .insert(PlayerCamera {
+                target
+            })
+        ;
+    } else {
+        panic!("Found no suitable targets");
+    }
 }
 
 fn make_oribtal_bodies_pickable(
@@ -104,38 +122,51 @@ pub fn print_events(mut events: EventReader<PickingEvent>) {
 
 fn set_camera_target(
     mut events: EventReader<PickingEvent>,
-    q_targets: Query<(Entity, &GlobalTransform), With<OrbitalBody>>,
-    mut camera_target_res: ResMut<CameraTarget>,
+    q_targets: Query<Entity, With<Selection>>,
+    mut q_camera: Query<&mut PlayerCamera>,
 ) {
-    for event in events.iter() {
-        match event {
-            PickingEvent::Selection(selection) => {
-                match selection {
-                    SelectionEvent::JustSelected(entity) => {
-                        match q_targets.get(*entity) {
-                            Ok((_, selected_transformation)) => {
-                                camera_target_res.0 = selected_transformation.translation;
+    if let Ok(mut player_camera) = q_camera.single_mut() {
+        for event in events.iter() {
+            match event {
+                PickingEvent::Selection(selection) => {
+                    match selection {
+                        SelectionEvent::JustSelected(just_selected) => {
+
+                            if *just_selected == player_camera.target {
+                                continue;
+                            } else {
+                                if let Ok(target_entity) = q_targets.get(*just_selected) {
+                                    player_camera.target = target_entity;
+                                } else {
+                                    error!("Didn't find selected target within query");
+                                }
                             }
-                            Err(_) => todo!(),
                         }
+                        _ => continue,
                     }
-                    _ => continue,
-                }
-            },
-            _ => continue,
+                },
+                _ => continue,
+            }
         }
+    } else {
+        error!("Found no player cameras in scene");
     }
+    
 }
 
 // Replace the target with a reference to the entity in question, so that we can continously update the camera position
-fn move_camera_to_target(mut q: Query<&mut Transform, With<Camera>>, target: Res<CameraTarget>) {
-    // if target.is_changed() {
-    for mut transform in q.iter_mut() {
-        let new_pos =  target.0 + Vec3::ONE * 2.0;
-        transform.translation = new_pos;
-        transform.rotation = quat_look_at(new_pos - target.0, Vec3::Y);
+fn move_camera_to_target(
+    mut q_camera: Query<(&mut Transform, &PlayerCamera)>,
+    q_targets: Query<(Entity, &GlobalTransform), With<OrbitalBody>>,
+    settings: Res<PlayerCameraSettings>,
+) {
+    if let Ok((mut transform, player_cam)) = q_camera.single_mut() {
+        if let Ok((_, target_transform)) = q_targets.get(player_cam.target) {
+            transform.translation = target_transform.translation + settings.offset;
+        } else {
+            panic!("Found no suitable targets");
+        }
+    } else {
+        error!("None or more than one player camera in scene!");
     }
-        // q.get_single()
-        // info!("Target was changed");
-    // }
 }
