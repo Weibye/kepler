@@ -1,4 +1,3 @@
-mod camera_plugin;
 mod orbit_plugin;
 mod player;
 
