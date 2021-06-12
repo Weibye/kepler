@@ -1,8 +1,18 @@
-
-use bevy::{core::Time, ecs::system::Query, math::{
+use bevy::{
+    core::Time,
+    ecs::system::Query,
+    math::{
         Vec3,
         Mat4,
-    }, prelude::{Entity, GlobalTransform, Res, Transform, With}};
+    }, 
+    prelude::{
+        Entity, 
+        Res, 
+        Transform, 
+        With
+    }
+};
+
 use smooth_bevy_cameras::LookTransform;
 
 use crate::{orbit_plugin::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
@@ -19,9 +29,8 @@ pub(crate) fn update_camera(
     
 ) {
     for (mut camera, mut radius) in q_camera.iter_mut() {
-        let speed = 0.15;
 
-        let direction = (camera.eye - camera.target).normalize();
+        let mut direction = (camera.eye - camera.target).normalize();
 
         // Target
         match orbit_target.body {
@@ -32,10 +41,6 @@ pub(crate) fn update_camera(
             },
             None => camera.target = Vec3::ZERO,
         }
-        // if let Some(movement) = actions.player_movement {
-        //     // println!("Movement: {:?}", movement);
-        //     camera.target += Vec3::new(movement.x, 0.0, movement.y) * speed * 0.3;
-        // }
 
         // Scroll axis input
         if let Some(scroll) = actions.scroll {
@@ -45,8 +50,15 @@ pub(crate) fn update_camera(
             else if radius.0 > settings.max_radius { radius.0 = settings.max_radius; }
         }
 
-        // let rot = Mat4::from_axis_angle(Vec3::Y, time.delta_seconds() * speed);
-        // camera.eye = rot.transform_vector3(direction * radius.0) // * radius.0); //  * Vec3::X * 2.0;
+        match actions.mouse_movement {
+            Some(delta) => {
+                direction = Mat4::from_axis_angle(
+                    Vec3::Y, 
+                    -delta.x * 0.004
+                ).transform_vector3(direction);
+            },
+            None => (),
+        }
         camera.eye = camera.target + direction * radius.0;
     }
 }

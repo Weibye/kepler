@@ -1,7 +1,6 @@
 // Source: https://github.com/NiklasEi/bevy_game_template/blob/main/game_plugin/src/actions.rs
 // Source: https://bevy-cheatbook.github.io/cookbook/pan-orbit-camera.html
 
-use crate::GameState;
 use bevy::{input::mouse::{MouseMotion, MouseWheel}, prelude::*};
 
 pub struct InputPlugin;
@@ -26,13 +25,15 @@ impl Plugin for InputPlugin {
 pub struct Actions {
     pub player_movement: Option<Vec2>,
     pub scroll: Option<f32>,
+    pub mouse_movement: Option<Vec2>,
 }
 
 fn set_movement_actions(
     mut actions: ResMut<Actions>, 
     keyboard_input: Res<Input<KeyCode>>,
-    // mut event_mouse_motion: EventReader<MouseMotion>,
     mouse_wheel_reader: EventReader<MouseWheel>,
+    mouse_motion_reader: EventReader<MouseMotion>,
+    mouse_buttons: Res<Input<MouseButton>>,
 ) {
     if keyboard_input.just_released(KeyCode::W)
         || keyboard_input.pressed(KeyCode::W)
@@ -86,7 +87,14 @@ fn set_movement_actions(
     }
     
     // Handle mouse scroll input
-    actions.scroll = mouse_scroll(mouse_wheel_reader);    
+    actions.scroll = mouse_scroll(mouse_wheel_reader);
+    
+    // handle mouse movement input
+    if mouse_buttons.pressed(MouseButton::Right) || mouse_buttons.just_released(MouseButton::Right) {
+        actions.mouse_movement = mouse_movement(mouse_motion_reader);
+    } else {
+        actions.mouse_movement = None;
+    }
 }
 
 
@@ -99,6 +107,19 @@ fn mouse_scroll(mut mouse_wheel_reader: EventReader<MouseWheel>) -> Option<f32> 
 
     if scroll.abs() > 0.0 {
         return Some(scroll);
+    } else {
+        return None;
+    }
+}
+/// Collects all mouse-motion events from this frame and translates into a 1D axis
+fn mouse_movement(mut reader: EventReader<MouseMotion>) -> Option<Vec2> {
+    let mut delta = Vec2::ZERO;
+    for event in reader.iter() {
+        delta += event.delta;
+    }
+
+    if delta != Vec2::ZERO {
+        return Some(delta);
     } else {
         return None;
     }
