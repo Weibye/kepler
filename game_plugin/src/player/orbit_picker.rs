@@ -29,11 +29,3 @@ impl Plugin for OrbitPickerPlugin {
 pub(crate) struct OrbitTarget {
     pub body: Option<Entity>
 }
-//  {
-//     pub target: Option<TargetBody>,
-// }
-
-// pub struct TargetBody {
-//     pub entity: Entity,
-//     pub transform: Transform,
-// }

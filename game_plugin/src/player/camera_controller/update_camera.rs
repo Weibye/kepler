@@ -11,7 +11,7 @@ use super::{CameraRadius, CameraSettings};
 
 pub(crate) fn update_camera(
     mut q_camera: Query<(&mut LookTransform, &mut CameraRadius)>,
-    q_targets: Query<(Entity, &Transform)>,
+    q_targets: Query<(Entity, &Transform), With<OrbitalBody>>,
     time: Res<Time>,
     actions: Res<Actions>,
     settings: Res<CameraSettings>,
@@ -31,9 +31,6 @@ pub(crate) fn update_camera(
                 }
             },
             None => camera.target = Vec3::ZERO,
-            // Some(current_target) if current_target.transform.translation != camera.target => {
-            //     camera.target = current_target.transform.translation;
-            // },
         }
         // if let Some(movement) = actions.player_movement {
         //     // println!("Movement: {:?}", movement);

@@ -1,10 +1,4 @@
-use bevy::{
-    math::Vec3, 
-    prelude::{
-        Commands, 
-        PerspectiveCameraBundle
-    }
-};
+use bevy::{math::Vec3, prelude::{Commands, PerspectiveCameraBundle, Res}};
 use bevy_mod_picking::PickingCameraBundle;
 use smooth_bevy_cameras::{
     LookTransform, 
@@ -12,25 +6,23 @@ use smooth_bevy_cameras::{
     Smoother
 };
 
-use super::CameraRadius;
+use super::{CameraRadius, CameraSettings};
 
 pub(crate) fn setup_camera(
     mut commands: Commands,
+    settings: Res<CameraSettings>,
 ) {
-    let radius = 3.0;
-    let direction = Vec3::new(1.0, 1.5, 0.0).normalize();
-
     commands
         .spawn()
         .insert_bundle(PerspectiveCameraBundle::default())
         .insert_bundle(LookTransformBundle {
             transform: LookTransform {
-                eye: Vec3::ZERO + direction * radius,
+                eye: Vec3::ZERO + settings.init_direction * settings.init_radius,
                 target: Vec3::ZERO
             },
-            smoother: Smoother::new(0.9)
+            smoother: Smoother::new(settings.smooth_factor)
         })
         .insert_bundle(PickingCameraBundle::default())
-        .insert(CameraRadius(radius))
+        .insert(CameraRadius(settings.init_radius))
     ;
 }
