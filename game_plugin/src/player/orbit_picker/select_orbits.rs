@@ -29,13 +29,13 @@ pub(crate) fn select_orbits(
                     },
 
                     // Deselection
-                    SelectionEvent::JustDeselected(deselected_entity) => {
-                        match select_target.body {
-                            Some(existing) if existing == *deselected_entity => select_target.body = None,
-                            Some(_) => (),
-                            None => (),
-                        }
-                    }
+                    SelectionEvent::JustDeselected(deselected_entity) => (), //{
+                    //     match select_target.body {
+                    //         Some(existing) if existing == *deselected_entity => select_target.body = None,
+                    //         Some(_) => (),
+                    //         None => (),
+                    //     }
+                    // }
                 }
             },
             PickingEvent::Hover(_) => (),
