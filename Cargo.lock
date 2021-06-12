@@ -350,15 +350,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_flycam"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf85700564f15ae65430722ad217f8b343278179098707627805d4e26f6d28b7"
-dependencies = [
- "bevy",
-]
-
-[[package]]
 name = "bevy_gilrs"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1411,10 +1402,10 @@ name = "game_plugin"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_flycam",
  "bevy_mod_picking",
  "bevy_prototype_debug_lines",
  "rand",
+ "smooth-bevy-cameras",
 ]
 
 [[package]]
@@ -2893,6 +2884,16 @@ version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "smooth-bevy-cameras"
+version = "0.1.0"
+source = "git+https://github.com/bonsairobo/smooth-bevy-cameras?branch=main#7172806916f9523b512cb9501438a201fc19a1fb"
+dependencies = [
+ "approx",
+ "bevy",
  "serde",
 ]
 

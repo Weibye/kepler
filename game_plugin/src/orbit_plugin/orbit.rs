@@ -1,5 +1,4 @@
 use std::f32::consts::PI;
-
 use bevy::math::{Quat, Vec3};
 use rand::{Rng, thread_rng};
 
@@ -67,6 +66,7 @@ pub trait OrbitalDirs {
     
     fn orbital_normal(&self) -> Vec3;
 }
+
 impl OrbitalDirs for Orbit {
     /// Direction of the normal of the orbital plane
     fn orbital_normal(&self) -> Vec3 {
@@ -147,11 +147,6 @@ pub struct OrbitDetails {
     pub body_pos: Vec3,
 }
 
-struct ReferenceFrame {
-    forward: Vec3,
-    up: Vec3,
-    position: Vec3,
-}
 
 pub fn orbit_positions(orbit: Orbit, reference_forward: Vec3, reference_up: Vec3, reference_position: Vec3) -> OrbitDetails {
 

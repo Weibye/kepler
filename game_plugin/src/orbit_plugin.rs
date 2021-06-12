@@ -1,12 +1,22 @@
+// Declare modules
+mod orbit;
+mod reference_frame;
+
 use std::{f32::consts::PI, ops::Rem};
 
 // use crate::GameState;
 use bevy::{app::AppBuilder, pbr::PbrBundle, prelude::*};
+use bevy_mod_picking::{BoundVol, PickableBundle};
 use bevy_prototype_debug_lines::{DebugLines, DebugLinesPlugin};
 use rand::Rng;
 
-use crate::{GameState, orbit::{Orbit, OrbitalPositions, orbital_position_at_true_anomaly}};
+use crate::GameState;
 
+use orbit::{
+    orbital_position_at_true_anomaly,
+    OrbitalPositions,
+    Orbit
+};
 
 pub struct OrbitPlugin;
 
@@ -76,6 +86,8 @@ fn create_orbits(
                     ..Default::default()
                 })
                 .insert(Sun)
+                .insert_bundle(PickableBundle::default())
+                .insert(BoundVol::default())
             ;
 
             for _ in 0..3 {
@@ -119,6 +131,8 @@ fn create_orbits(
                                 transform: planet_transform,
                                 ..Default::default()
                             })
+                            .insert_bundle(PickableBundle::default())
+                            .insert(BoundVol::default())
                         ;
                     })
                 ;

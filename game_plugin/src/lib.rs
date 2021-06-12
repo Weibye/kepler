@@ -1,15 +1,15 @@
+mod camera_plugin;
 mod orbit_plugin;
-mod orbit;
-mod player_camera_plugin;
+mod player;
 
 use crate::orbit_plugin::OrbitPlugin;
-use crate::player_camera_plugin::PlayerCameraPlugin;
+use crate::player::PlayerPlugin;
 
-use bevy::app::AppBuilder;
-use bevy::prelude::ParallelSystemDescriptorCoercion;
-use bevy::prelude::Res;
-use bevy::prelude::info;
-use bevy::prelude::{ Plugin, ResMut, State, IntoSystem, SystemSet };
+use bevy::{
+    app::AppBuilder, 
+    prelude::*,
+};
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
 pub enum GameState {
@@ -30,7 +30,9 @@ impl Plugin for GamePlugin {
         app
             // Plugins
             .add_plugin(OrbitPlugin)
-            .add_plugin(PlayerCameraPlugin)
+            .add_plugin(PlayerPlugin)
+            // .add_plugin(CameraPlugin)
+            // .add_plugin(FrameTimeDiagnosticsPlugin::default())
             // App state & flow
             .add_state(GameState::Loading)
             .add_system_set(
