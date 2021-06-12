@@ -55,7 +55,11 @@ pub(crate) fn update_camera(
                 direction = Mat4::from_axis_angle(
                     Vec3::Y, 
                     -delta.x * 0.004
-                ).transform_vector3(direction);
+                ).transform_vector3(direction).normalize();
+                direction = Mat4::from_axis_angle(
+                    Vec3::Y.cross(direction),
+                    -delta.y * 0.01
+                ).transform_vector3(direction).normalize();
             },
             None => (),
         }
