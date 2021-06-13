@@ -4,7 +4,7 @@ use bevy::{math::Vec3, pbr::PbrBundle, prelude::{Assets, BuildChildren, Commands
 use bevy_mod_picking::{BoundVol, PickableBundle};
 use rand::Rng;
 
-use crate::orbit::{OrbitalBody, ReferenceFrame, Sun, orbit::{Orbit, orbital_position_at_true_anomaly}};
+use crate::orbit::{OrbitalBody, ReferenceFrame, Sun, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
 
 
 pub fn spawn_orbits(
@@ -46,53 +46,53 @@ pub fn spawn_orbits(
                 .insert(BoundVol::default())
             ;
 
-            for _ in 0..3 {
-                // Planets
-                let semi_major_axis = rng.gen_range(min_orbit_radius..max_orbit_radius);
-                let planet_orbit = Orbit {
-                    semi_major_axis,
-                    eccentricity: rng.gen_range(0.0..0.5) * semi_major_axis,
-                    longitude_of_ascending_node: rng.gen_range(0.0..(2.0*PI)),
-                    inclination: rng.gen_range(0.0..0.2),
-                    argument_of_periapsis: rng.gen_range(0.0..(2.0*PI)),
-                    true_anomaly: rng.gen_range(0.0..(2.0*PI)),
-                    ref_forward: -Vec3::Z,
-                    ref_up: Vec3::Y,
-                    ref_pos: Vec3::ZERO,
-                };
+            // for _ in 0..5 {
+            //     // Planets
+            //     let semi_major_axis = rng.gen_range(min_orbit_radius..max_orbit_radius);
+            //     let planet_orbit = OrbitParameters {
+            //         semi_major_axis,
+            //         eccentricity: rng.gen_range(0.0..0.5) * semi_major_axis,
+            //         longitude_of_ascending_node: rng.gen_range(0.0..(2.0*PI)),
+            //         inclination: rng.gen_range(0.0..0.2),
+            //         argument_of_periapsis: rng.gen_range(0.0..(2.0*PI)),
+            //         true_anomaly: rng.gen_range(0.0..(2.0*PI)),
+            //         ref_forward: -Vec3::Z,
+            //         ref_up: Vec3::Y,
+            //         ref_pos: Vec3::ZERO,
+            //     };
 
-                reference_frame
-                    .spawn()
-                    .insert(planet_orbit)
-                    .insert(Transform::default())
-                    .insert(GlobalTransform::default())
+            //     reference_frame
+            //         .spawn()
+            //         .insert(planet_orbit)
+            //         .insert(Transform::default())
+            //         .insert(GlobalTransform::default())
 
-                    .with_children(|planet_reference_frame| {
-                        let planet_radius = rng.gen_range(0.05..0.10);
-                        let planet_transform = Transform {
-                            translation: orbital_position_at_true_anomaly(planet_orbit, planet_orbit.true_anomaly),
-                            ..Default::default()
-                        };
-                        let planet_body = OrbitalBody {
-                            radius: planet_radius,
-                            mass: rng.gen_range(1.0..5.0),
-                            angular_velocity: rng.gen_range(0.01..0.25),
-                        };
+            //         .with_children(|planet_reference_frame| {
+            //             let planet_radius = rng.gen_range(0.05..0.10);
+            //             let planet_transform = Transform {
+            //                 translation: orbital_position_at_true_anomaly(planet_orbit, planet_orbit.true_anomaly),
+            //                 ..Default::default()
+            //             };
+            //             let planet_body = OrbitalBody {
+            //                 radius: planet_radius,
+            //                 mass: rng.gen_range(1.0..5.0),
+            //                 angular_velocity: rng.gen_range(0.01..0.25),
+            //             };
 
-                        planet_reference_frame
-                            .spawn()
-                            .insert(planet_body)
-                            .insert_bundle(PbrBundle {
-                                mesh: meshes.add(Mesh::from(shape::Icosphere { radius: planet_body.radius, subdivisions: 1 })),
-                                transform: planet_transform,
-                                ..Default::default()
-                            })
-                            .insert_bundle(PickableBundle::default())
-                            .insert(BoundVol::default())
-                        ;
-                    })
-                ;
-            }
+            //             planet_reference_frame
+            //                 .spawn()
+            //                 .insert(planet_body)
+            //                 .insert_bundle(PbrBundle {
+            //                     mesh: meshes.add(Mesh::from(shape::Icosphere { radius: planet_body.radius, subdivisions: 1 })),
+            //                     transform: planet_transform,
+            //                     ..Default::default()
+            //                 })
+            //                 .insert_bundle(PickableBundle::default())
+            //                 .insert(BoundVol::default())
+            //             ;
+            //         })
+            //     ;
+            // }
         })
     ;
 }

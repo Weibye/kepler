@@ -1,10 +1,12 @@
-mod orbit;
+mod orbit_parameters;
 mod world_generator;
+mod world_updater;
 mod orbit_visualizer;
 
 use world_generator::WorldGeneratorPlugin;
+use world_updater::WorldUpdaterPlugin;
 use orbit_visualizer::OrbitVisualizerPlugin;
-use orbit::Orbit;
+use orbit_parameters::OrbitParameters;
 
 use bevy::{math::Vec3, prelude::{AppBuilder, Plugin}};
 use bevy_prototype_debug_lines::DebugLinesPlugin;
@@ -18,6 +20,7 @@ impl Plugin for OrbitPlugin {
         app
             .add_plugin(DebugLinesPlugin)
             .add_plugin(WorldGeneratorPlugin)
+            .add_plugin(WorldUpdaterPlugin)
             .add_plugin(OrbitVisualizerPlugin)
         ;
     }

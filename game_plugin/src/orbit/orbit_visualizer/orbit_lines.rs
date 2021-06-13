@@ -3,11 +3,11 @@ use std::f32::consts::PI;
 use bevy::{math::Vec3, prelude::{Color, Entity, Query, Res, ResMut}};
 use bevy_prototype_debug_lines::DebugLines;
 
-use crate::orbit::orbit::{Orbit, OrbitalPositions, orbital_position_at_true_anomaly};
+use crate::orbit::orbit_parameters::{OrbitParameters, OrbitalPositions, orbital_position_at_true_anomaly};
 use crate::player::orbit_picker::OrbitTarget;
 
 pub(crate) fn draw_orbit_lines(
-    query: Query<(Entity, &Orbit)>,
+    query: Query<(Entity, &OrbitParameters)>,
     mut lines: ResMut<DebugLines>,
     selected_orbit: Res<OrbitTarget>,
 ) {
@@ -18,16 +18,21 @@ pub(crate) fn draw_orbit_lines(
     // };
 
     for (e, orbit) in query.iter() {
+        let color = match selected_orbit.selection {
+            Some(selected_entity) if e == selected_entity => Color::rgb(1.0, 1.0, 1.0),
+            Some(_) => Color::rgb(0.2, 0.2, 0.2),
+            None => Color::rgb(0.2, 0.2, 0.2),
+        };
 
-        // Ascending / Desceding
-        lines.line_colored(Vec3::ZERO, orbit.ascending_node(), 0.0, Color::rgb(0.5, 0.0, 1.0));
-        lines.line_colored(Vec3::ZERO, orbit.descending_node(), 0.0, Color::rgb(0.5, 0.0, 1.0));
+        // // Ascending / Desceding
+        // lines.line_colored(Vec3::ZERO, orbit.ascending_node(), 0.0, Color::rgb(0.5, 0.0, 1.0));
+        // lines.line_colored(Vec3::ZERO, orbit.descending_node(), 0.0, Color::rgb(0.5, 0.0, 1.0));
 
-        // Apoapsis / Periapsis
-        lines.line_colored(Vec3::ZERO, orbit.periapsis_node(), 0.0, Color::rgb(0.3, 1.0, 0.0));
-        lines.line_colored(Vec3::ZERO, orbit.apoapsis_node(), 0.0, Color::rgb(0.3, 1.0, 0.0));
+        // // Apoapsis / Periapsis
+        // lines.line_colored(Vec3::ZERO, orbit.periapsis_node(), 0.0, Color::rgb(0.3, 1.0, 0.0));
+        // lines.line_colored(Vec3::ZERO, orbit.apoapsis_node(), 0.0, Color::rgb(0.3, 1.0, 0.0));
 
-        lines.line_colored(Vec3::ZERO, orbital_position_at_true_anomaly(*orbit, orbit.true_anomaly), 0.0, Color::rgb(1., 1., 1.));
+        // lines.line_colored(Vec3::ZERO, orbital_position_at_true_anomaly(*orbit, orbit.true_anomaly), 0.0, Color::rgb(1., 1., 1.));
 
         let line_positions = orbit.orbit_ring();
 
@@ -40,7 +45,7 @@ pub(crate) fn draw_orbit_lines(
                 next = line_positions[n+1];
             }
             
-            lines.line(current, next, 0.0);
+            lines.line_colored(current, next, 0.0, color);
         }
     }
 }

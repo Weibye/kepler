@@ -3,7 +3,7 @@ use bevy::math::{Quat, Vec3};
 use rand::{Rng, thread_rng};
 
 #[derive(Debug, Copy, Clone)]
-pub struct Orbit {
+pub struct OrbitParameters {
     /// Defines how elliptical the orbit is.
     /// Range 0 -> e -> 1
     // / When eccentricity = 0, the orbit is a perfect circle
@@ -27,11 +27,11 @@ pub struct Orbit {
     pub ref_pos: Vec3,
 }
 
-impl Orbit {
-    pub fn rand() -> Orbit {
+impl OrbitParameters {
+    pub fn rand() -> OrbitParameters {
         let mut rng = thread_rng();
 
-        Orbit {
+        OrbitParameters {
             eccentricity: rng.gen_range(0.0..=0.7),
             semi_major_axis: rng.gen_range(0.5..=2.5),
             longitude_of_ascending_node: rng.gen_range(0.0..(PI)),
@@ -67,7 +67,7 @@ pub trait OrbitalDirs {
     fn orbital_normal(&self) -> Vec3;
 }
 
-impl OrbitalDirs for Orbit {
+impl OrbitalDirs for OrbitParameters {
     /// Direction of the normal of the orbital plane
     fn orbital_normal(&self) -> Vec3 {
         Quat::from_axis_angle(self.ascending_dir(), self.inclination) * self.ref_up
@@ -101,7 +101,7 @@ pub trait OrbitalPositions {
     fn periapsis_node(&self) -> Vec3;
     fn apoapsis_node(&self) -> Vec3;
 }
-impl OrbitalPositions for Orbit {
+impl OrbitalPositions for OrbitParameters {
     fn ascending_node(&self) -> Vec3 {
         self.ref_pos 
         + self.ascending_dir() 
@@ -148,7 +148,7 @@ pub struct OrbitDetails {
 }
 
 
-pub fn orbit_positions(orbit: Orbit, reference_forward: Vec3, reference_up: Vec3, reference_position: Vec3) -> OrbitDetails {
+pub fn orbit_positions(orbit: OrbitParameters, reference_forward: Vec3, reference_up: Vec3, reference_position: Vec3) -> OrbitDetails {
 
     // Radii
     let radius_periapsis = orbit.semi_major_axis * (1. - orbit.eccentricity);
@@ -189,7 +189,7 @@ fn radius_at_true_anomaly(semi_major_axis: f32, eccentricity: f32, true_anomaly:
     radius
 }
 
-pub fn orbital_position_at_true_anomaly(orbit: Orbit, true_anomaly: f32) -> Vec3 {
+pub fn orbital_position_at_true_anomaly(orbit: OrbitParameters, true_anomaly: f32) -> Vec3 {
     let direction = Quat::from_axis_angle(orbit.orbital_normal(), true_anomaly) * orbit.periapsis_dir();
     let radius = radius_at_true_anomaly(orbit.semi_major_axis, orbit.eccentricity, true_anomaly);
 
