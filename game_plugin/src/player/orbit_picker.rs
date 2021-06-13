@@ -16,7 +16,7 @@ pub struct OrbitPickerPlugin;
 impl Plugin for OrbitPickerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
-            .insert_resource(OrbitTarget { body: None })
+            .insert_resource(OrbitTarget { selection: None, hover: None })
             .add_plugin(PickingPlugin)
             .add_plugin(InteractablePickingPlugin)
             .add_plugin(HighlightablePickingPlugin)
@@ -26,6 +26,7 @@ impl Plugin for OrbitPickerPlugin {
     }
 }
 
-pub(crate) struct OrbitTarget {
-    pub body: Option<Entity>
+pub struct OrbitTarget {
+    pub selection: Option<Entity>,
+    pub hover: Option<Entity>,
 }

@@ -32,7 +32,7 @@ impl Orbit {
         let mut rng = thread_rng();
 
         Orbit {
-            eccentricity: rng.gen_range(0.0..=0.5),
+            eccentricity: rng.gen_range(0.0..=0.7),
             semi_major_axis: rng.gen_range(0.5..=2.5),
             longitude_of_ascending_node: rng.gen_range(0.0..(PI)),
             inclination: rng.gen_range(0.0..(PI)),

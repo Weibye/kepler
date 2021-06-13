@@ -15,7 +15,7 @@ use bevy::{
 
 use smooth_bevy_cameras::LookTransform;
 
-use crate::{orbit_plugin::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
+use crate::{orbit::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
 
 use super::{CameraRadius, CameraSettings};
 
@@ -33,7 +33,7 @@ pub(crate) fn update_camera(
         let mut direction = (camera.eye - camera.target).normalize();
 
         // Target
-        match orbit_target.body {
+        match orbit_target.selection {
             Some(target_entity) => {
                 if let Ok((_, target_transform)) = q_targets.get(target_entity) {
                     camera.target = target_transform.translation;

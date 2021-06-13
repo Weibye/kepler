@@ -5,7 +5,7 @@
 */
 
 mod camera_controller;
-mod orbit_picker;
+pub(crate) mod orbit_picker;
 mod input;
 
 use bevy::prelude::{
