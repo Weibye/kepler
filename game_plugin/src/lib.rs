@@ -1,12 +1,13 @@
 mod orbit_plugin;
 mod orbit;
 mod player;
+mod utils;
 
 use bevy::{
     app::AppBuilder, 
     prelude::*,
 };
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+// use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 
 use orbit::OrbitPlugin;
 use player::PlayerPlugin;

@@ -1,6 +1,7 @@
 use bevy::{core::Time, math::Quat, prelude::{Query, Res, Transform}};
 
-use crate::orbit::OrbitalBody;
+use crate::orbit::components::OrbitalBody;
+
 
 /// Rotates the orbital bodies along their own axis of rotation
 pub(crate) fn rotate_orbital_bodies(

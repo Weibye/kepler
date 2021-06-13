@@ -1,14 +1,15 @@
-use bevy::{math::{Vec2, Vec3}, prelude::{Color, GlobalTransform, Query, ResMut, Transform, With}};
+use bevy::{math::{Vec2, Vec3}, prelude::{Color, Query, ResMut, Transform, With}};
 use bevy_prototype_debug_lines::DebugLines;
 
-use crate::orbit::{OrbitalBody, ReferenceFrame};
+use crate::orbit::components::ReferenceFrame;
 
+/// Draws a grid around a transform
 pub(crate) fn draw_reference_frame(
     query: Query<&Transform, With<ReferenceFrame>>,
     mut lines: ResMut<DebugLines>,
 ) {
     let grid_count = 9;
-    let size = Vec2::ONE * 0.5;
+    let size = Vec2::ONE * 1.0;
     let brightness = 0.2;
     let color = Color::rgb(brightness, brightness, brightness);
 

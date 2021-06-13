@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use bevy::{math::Vec3, prelude::{Color, Entity, Query, Res, ResMut}};
 use bevy_prototype_debug_lines::DebugLines;
 
-use crate::orbit::orbit_parameters::{OrbitParameters, OrbitalPositions, orbital_position_at_true_anomaly};
+use crate::orbit::orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly};
 use crate::player::orbit_picker::OrbitTarget;
 
 pub(crate) fn draw_orbit_lines(
@@ -34,18 +34,18 @@ pub(crate) fn draw_orbit_lines(
 
         // lines.line_colored(Vec3::ZERO, orbital_position_at_true_anomaly(*orbit, orbit.true_anomaly), 0.0, Color::rgb(1., 1., 1.));
 
-        let line_positions = orbit.orbit_ring();
+        // let line_positions = orbit.orbit_ring();
 
-        for n in 0..line_positions.len() {
-            let current = line_positions[n];
-            let next;
-            if n == line_positions.len() - 1 {
-                next = line_positions[0];
-            } else {
-                next = line_positions[n+1];
-            }
+        // for n in 0..line_positions.len() {
+        //     let current = line_positions[n];
+        //     let next;
+        //     if n == line_positions.len() - 1 {
+        //         next = line_positions[0];
+        //     } else {
+        //         next = line_positions[n+1];
+        //     }
             
-            lines.line_colored(current, next, 0.0, color);
-        }
+        //     lines.line_colored(current, next, 0.0, color);
+        // }
     }
 }

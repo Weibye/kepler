@@ -1,5 +1,5 @@
 use std::f32::consts::PI;
-use bevy::math::{Quat, Vec3};
+use bevy::{math::{Quat, Vec3}, prelude::Transform};
 use rand::{Rng, thread_rng};
 
 #[derive(Debug, Copy, Clone)]
@@ -22,89 +22,75 @@ pub struct OrbitParameters {
     /// _Range: \[0..=2PI\]_
     /// defines the position of the orbital body along the orbital elipse at t = 0
     pub true_anomaly: f32,
-    pub ref_forward: Vec3,
-    pub ref_up: Vec3,
-    pub ref_pos: Vec3,
 }
 
 impl OrbitParameters {
-    pub fn rand() -> OrbitParameters {
+    pub fn from_rand() -> OrbitParameters {
         let mut rng = thread_rng();
 
         OrbitParameters {
-            eccentricity: rng.gen_range(0.0..=0.7),
+            eccentricity: rng.gen_range(0.0..1.0),
             semi_major_axis: rng.gen_range(0.5..=2.5),
-            longitude_of_ascending_node: rng.gen_range(0.0..(PI)),
-            inclination: rng.gen_range(0.0..(PI)),
-            argument_of_periapsis: rng.gen_range(0.0..(PI)),
-            true_anomaly: rng.gen_range(0.0..(2.*PI)),
-            ref_forward: -Vec3::Z,
-            ref_up: Vec3::Y,
-            ref_pos: Vec3::ZERO,
+            longitude_of_ascending_node: rng.gen_range(0.0..PI*2.),
+            inclination: rng.gen_range(0.0..PI*2.),
+            argument_of_periapsis: rng.gen_range(0.0..PI*2.),
+            true_anomaly: rng.gen_range(0.0..PI*2.),
         }
     }
 
-    pub fn orbit_ring(&self) -> Vec<Vec3> {
+    pub fn orbit_ring(&self, reference_frame: &Transform) -> Vec<Vec3> {
         let mut ring_positions = Vec::new();
         let steps = 36;
         let step_angle = 2. * PI / steps as f32;
         
         for n in 0..steps {
-            ring_positions.push(orbital_position_at_true_anomaly(*self, step_angle * n as f32));
+            ring_positions.push(orbital_position_at_true_anomaly(*self, step_angle * n as f32, reference_frame));
         }
 
         return ring_positions;
     }
 }
 
-/// Normalized directions for the orbital definition
-pub trait OrbitalDirs {
-    fn ascending_dir(&self) -> Vec3;
-    fn descending_dir(&self) -> Vec3;
-    fn periapsis_dir(&self) -> Vec3;
-    fn apoapsis_dir(&self) -> Vec3;
-    
-    fn orbital_normal(&self) -> Vec3;
-}
-
-impl OrbitalDirs for OrbitParameters {
+impl OrbitParameters {
     /// Direction of the normal of the orbital plane
-    fn orbital_normal(&self) -> Vec3 {
-        Quat::from_axis_angle(self.ascending_dir(), self.inclination) * self.ref_up
+    pub fn orbital_normal(&self, reference_frame: &Transform) -> Vec3 {
+        Quat::from_axis_angle(
+            self.ascending_dir(reference_frame), 
+            self.inclination) 
+            * reference_frame.local_y()
     }
 
     /// Direction of the ascending node
-    fn ascending_dir(&self) -> Vec3 {
-        Quat::from_axis_angle(self.ref_up, self.longitude_of_ascending_node) * self.ref_forward
+    pub fn ascending_dir(&self, reference_frame: &Transform) -> Vec3 {
+        Quat::from_axis_angle(
+            reference_frame.local_y(), 
+            self.longitude_of_ascending_node) 
+            * reference_frame.local_z()
     }
 
     /// Direction of descending node
-    fn descending_dir(&self) -> Vec3 {
-        -self.ascending_dir()
+    pub fn descending_dir(&self, reference_frame: &Transform) -> Vec3 {
+        -self.ascending_dir(reference_frame)
     }
 
     /// Direction of periapsis
-    fn periapsis_dir(&self) -> Vec3 {
-        Quat::from_axis_angle(self.orbital_normal(), self.argument_of_periapsis) * self.ascending_dir()
+    pub fn periapsis_dir(&self, reference_frame: &Transform) -> Vec3 {
+        Quat::from_axis_angle(
+            self.orbital_normal(reference_frame), 
+            self.argument_of_periapsis) 
+            * self.ascending_dir(reference_frame)
     }
 
     /// Direction of apoapsis
-    fn apoapsis_dir(&self) -> Vec3 {
-        -self.periapsis_dir()
+    pub fn apoapsis_dir(&self, reference_frame: &Transform) -> Vec3 {
+        -self.periapsis_dir(reference_frame)
     }
 }
 
-/// Positions of the orbital nodes
-pub trait OrbitalPositions {
-    fn ascending_node(&self) -> Vec3;
-    fn descending_node(&self) -> Vec3;
-    fn periapsis_node(&self) -> Vec3;
-    fn apoapsis_node(&self) -> Vec3;
-}
-impl OrbitalPositions for OrbitParameters {
-    fn ascending_node(&self) -> Vec3 {
-        self.ref_pos 
-        + self.ascending_dir() 
+impl OrbitParameters {
+    fn ascending_node(&self, reference_frame: &Transform) -> Vec3 {
+        reference_frame.translation
+        + self.ascending_dir(reference_frame) 
         * radius_at_true_anomaly(
             self.semi_major_axis, 
             self.eccentricity, 
@@ -112,9 +98,9 @@ impl OrbitalPositions for OrbitParameters {
         )
     }
 
-    fn descending_node(&self) -> Vec3 {
-        self.ref_pos
-        + self.descending_dir()
+    fn descending_node(&self, reference_frame: &Transform) -> Vec3 {
+        reference_frame.translation
+        + self.descending_dir(reference_frame)
         * radius_at_true_anomaly(
             self.semi_major_axis, 
             self.eccentricity, 
@@ -122,64 +108,64 @@ impl OrbitalPositions for OrbitParameters {
         )
     }
 
-    fn periapsis_node(&self) -> Vec3 {
+    fn periapsis_node(&self, reference_frame: &Transform) -> Vec3 {
         let radius = self.semi_major_axis * (1. - self.eccentricity);
 
-        self.ref_pos
-        + self.periapsis_dir()
+        reference_frame.translation
+        + self.periapsis_dir(reference_frame)
         * radius
     }
 
-    fn apoapsis_node(&self) -> Vec3 {
+    fn apoapsis_node(&self, reference_frame: &Transform) -> Vec3 {
         let radius = self.semi_major_axis * (1. + self.eccentricity);
 
-        self.ref_pos
-        + self.apoapsis_dir()
+        reference_frame.translation
+        + self.apoapsis_dir(reference_frame)
         * radius
     }
 }
 
-pub struct OrbitDetails {
-    pub periapsis: Vec3,
-    pub apoapsis: Vec3,
-    pub ascending_node: Vec3,
-    pub descending_node: Vec3,
-    pub body_pos: Vec3,
-}
+// pub struct OrbitDetails {
+//     pub periapsis: Vec3,
+//     pub apoapsis: Vec3,
+//     pub ascending_node: Vec3,
+//     pub descending_node: Vec3,
+//     pub body_pos: Vec3,
+// }
 
 
-pub fn orbit_positions(orbit: OrbitParameters, reference_forward: Vec3, reference_up: Vec3, reference_position: Vec3) -> OrbitDetails {
+// pub fn orbit_positions(orbit: OrbitParameters, reference_forward: Vec3, reference_up: Vec3, reference_position: Vec3) -> OrbitDetails {
 
-    // Radii
-    let radius_periapsis = orbit.semi_major_axis * (1. - orbit.eccentricity);
-    let radius_apoapsis= orbit.semi_major_axis * (1. + orbit.eccentricity);
+//     // Radii
+//     let radius_periapsis = orbit.semi_major_axis * (1. - orbit.eccentricity);
+//     let radius_apoapsis= orbit.semi_major_axis * (1. + orbit.eccentricity);
 
-    let ascending_node_rot = Quat::from_axis_angle(reference_up, orbit.longitude_of_ascending_node);
-    let ascending_node_direction = ascending_node_rot * reference_forward; // this should be reprojected down to the actual orbit position
-    // let ascending_node_position = ascending_node_direction + reference_position;
-    // Inclination
-    let inclination_rot = Quat::from_axis_angle(ascending_node_direction, orbit.inclination);
-    let orbit_normal = inclination_rot * reference_up;
+//     let ascending_node_rot = Quat::from_axis_angle(reference_up, orbit.longitude_of_ascending_node);
+//     let ascending_node_direction = ascending_node_rot * reference_forward; // this should be reprojected down to the actual orbit position
+//     // let ascending_node_position = ascending_node_direction + reference_position;
+//     // Inclination
+//     let inclination_rot = Quat::from_axis_angle(ascending_node_direction, orbit.inclination);
+//     let orbit_normal = inclination_rot * reference_up;
 
-    let periapsis_dir = Quat::from_axis_angle(orbit_normal, orbit.argument_of_periapsis) * ascending_node_direction;
+//     let periapsis_dir = Quat::from_axis_angle(orbit_normal, orbit.argument_of_periapsis) * ascending_node_direction;
 
-    let periapsis_position = periapsis_dir * radius_periapsis + reference_position;
-    let apoapsis_position = -periapsis_dir * radius_apoapsis + reference_position;
+//     let periapsis_position = periapsis_dir * radius_periapsis + reference_position;
+//     let apoapsis_position = -periapsis_dir * radius_apoapsis + reference_position;
 
-    let eccentricity_vector = (periapsis_position - apoapsis_position).normalize() * orbit.eccentricity;
+//     let eccentricity_vector = (periapsis_position - apoapsis_position).normalize() * orbit.eccentricity;
 
-    let true_anomaly_direction = Quat::from_axis_angle(orbit_normal, orbit.true_anomaly) * periapsis_dir; // todo: replaced by eccentricity vector? it has the same direction
+//     let true_anomaly_direction = Quat::from_axis_angle(orbit_normal, orbit.true_anomaly) * periapsis_dir; // todo: replaced by eccentricity vector? it has the same direction
 
-    let true_anom_radius = radius_at_true_anomaly(orbit.semi_major_axis, orbit.eccentricity, orbit.true_anomaly);
+//     let true_anom_radius = radius_at_true_anomaly(orbit.semi_major_axis, orbit.eccentricity, orbit.true_anomaly);
 
-    OrbitDetails {
-        ascending_node: reference_position + ascending_node_direction,
-        descending_node: reference_position - ascending_node_direction,
-        periapsis: periapsis_position,
-        apoapsis: apoapsis_position,
-        body_pos: true_anomaly_direction * true_anom_radius,
-    }
-}
+//     OrbitDetails {
+//         ascending_node: reference_position + ascending_node_direction,
+//         descending_node: reference_position - ascending_node_direction,
+//         periapsis: periapsis_position,
+//         apoapsis: apoapsis_position,
+//         body_pos: true_anomaly_direction * true_anom_radius,
+//     }
+// }
 
 fn radius_at_true_anomaly(semi_major_axis: f32, eccentricity: f32, true_anomaly: f32) -> f32 {
 
@@ -189,9 +175,9 @@ fn radius_at_true_anomaly(semi_major_axis: f32, eccentricity: f32, true_anomaly:
     radius
 }
 
-pub fn orbital_position_at_true_anomaly(orbit: OrbitParameters, true_anomaly: f32) -> Vec3 {
-    let direction = Quat::from_axis_angle(orbit.orbital_normal(), true_anomaly) * orbit.periapsis_dir();
+pub fn orbital_position_at_true_anomaly(orbit: OrbitParameters, true_anomaly: f32, reference_frame: &Transform) -> Vec3 {
+    let direction = Quat::from_axis_angle(orbit.orbital_normal(reference_frame), true_anomaly) * orbit.periapsis_dir(reference_frame);
     let radius = radius_at_true_anomaly(orbit.semi_major_axis, orbit.eccentricity, true_anomaly);
 
-    orbit.ref_pos + direction * radius
+    reference_frame.translation + direction * radius
 }

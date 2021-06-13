@@ -1,112 +1,49 @@
-use std::f32::consts::PI;
+use bevy::{prelude::{Assets, BuildChildren, ChildBuilder, Commands, Mesh, Res, ResMut, StandardMaterial}};
 
-use bevy::{math::Vec3, pbr::PbrBundle, prelude::{Assets, BuildChildren, Commands, GlobalTransform, Mesh, ResMut, StandardMaterial, Transform, shape}};
-use bevy_mod_picking::{BoundVol, PickableBundle};
-use rand::Rng;
+use crate::orbit::bundles::{
+    OrbitalBodyBundle,
+    ReferenceFrameBundle,
+};
 
-use crate::orbit::{OrbitalBody, ReferenceFrame, Sun, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
+use super::{HierarchyNode, WorldGenerationSettings, generate_world::generate_world};
 
-
-pub fn spawn_orbits(
+pub(super) fn spawn_world(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    settings: Res<WorldGenerationSettings>
 ) {
-    println!("Creating orbits");
-    let mut rng = rand::thread_rng();
-    let reference_forward = -Vec3::Z;
-    let reference_up = Vec3::Y;
-    let reference_position = Vec3::new(0.0, 0.0, 0.0);
-    let dot_radius = 0.07;
-    // let sun_radius = 0.15;
-
-    let (sun_transform, sun_body) = spawn_sun();
-
-    // Orbit parameters
-
-
-    let min_orbit_radius = sun_body.radius + 0.1;
-    let max_orbit_radius = 2.5;
+    let solar_system = generate_world(settings);
 
     commands
-        .spawn()
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())
-        .insert(ReferenceFrame)
-        .with_children(|reference_frame | {
-            reference_frame
-                .spawn()
-                .insert(sun_body)
-                .insert_bundle(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Icosphere { radius: sun_body.radius, subdivisions: 1 })), 
-                    ..Default::default()
-                })
-                .insert(Sun)
-                .insert_bundle(PickableBundle::default())
-                .insert(BoundVol::default())
-            ;
+        .spawn_bundle(ReferenceFrameBundle::from_transform(solar_system.reference_frame))
+        .with_children(| builder | {
 
-            // for _ in 0..5 {
-            //     // Planets
-            //     let semi_major_axis = rng.gen_range(min_orbit_radius..max_orbit_radius);
-            //     let planet_orbit = OrbitParameters {
-            //         semi_major_axis,
-            //         eccentricity: rng.gen_range(0.0..0.5) * semi_major_axis,
-            //         longitude_of_ascending_node: rng.gen_range(0.0..(2.0*PI)),
-            //         inclination: rng.gen_range(0.0..0.2),
-            //         argument_of_periapsis: rng.gen_range(0.0..(2.0*PI)),
-            //         true_anomaly: rng.gen_range(0.0..(2.0*PI)),
-            //         ref_forward: -Vec3::Z,
-            //         ref_up: Vec3::Y,
-            //         ref_pos: Vec3::ZERO,
-            //     };
+            builder.spawn_bundle(OrbitalBodyBundle::from_orbital_body(solar_system.body, &mut meshes));
 
-            //     reference_frame
-            //         .spawn()
-            //         .insert(planet_orbit)
-            //         .insert(Transform::default())
-            //         .insert(GlobalTransform::default())
-
-            //         .with_children(|planet_reference_frame| {
-            //             let planet_radius = rng.gen_range(0.05..0.10);
-            //             let planet_transform = Transform {
-            //                 translation: orbital_position_at_true_anomaly(planet_orbit, planet_orbit.true_anomaly),
-            //                 ..Default::default()
-            //             };
-            //             let planet_body = OrbitalBody {
-            //                 radius: planet_radius,
-            //                 mass: rng.gen_range(1.0..5.0),
-            //                 angular_velocity: rng.gen_range(0.01..0.25),
-            //             };
-
-            //             planet_reference_frame
-            //                 .spawn()
-            //                 .insert(planet_body)
-            //                 .insert_bundle(PbrBundle {
-            //                     mesh: meshes.add(Mesh::from(shape::Icosphere { radius: planet_body.radius, subdivisions: 1 })),
-            //                     transform: planet_transform,
-            //                     ..Default::default()
-            //                 })
-            //                 .insert_bundle(PickableBundle::default())
-            //                 .insert(BoundVol::default())
-            //             ;
-            //         })
-            //     ;
-            // }
+            if let Some(nodes) = solar_system.children {
+                for node in nodes {
+                    spawn_node(node, builder, &mut meshes);
+                }
+            }
         })
     ;
 }
 
-fn spawn_sun() -> (Transform, OrbitalBody) {
+fn spawn_node(node: HierarchyNode, builder: &mut ChildBuilder, mut meshes: &mut ResMut<Assets<Mesh>>) {
+    
+    builder
+        .spawn()
+        .insert_bundle(ReferenceFrameBundle::from_transform(node.node.reference_frame))
+        .insert(node.node.orbit)
+        .with_children(|parent_builder | {
+            parent_builder.spawn_bundle(OrbitalBodyBundle::from_orbital_body(node.node.body, &mut meshes));
 
-    let mut rng = rand::thread_rng();
-    let radius = rng.gen_range(0.10..0.20);
-    let transform = Transform::default();
-    let body = OrbitalBody {
-        radius,
-        mass: rng.gen_range(5.0..10.0),
-        angular_velocity: rng.gen_range(0.15..0.25),
-    };
-
-    return (transform, body);
+            if let Some(child_nodes) = node.children {
+                for child_node in child_nodes {
+                    spawn_node(child_node, parent_builder, &mut meshes);
+                }
+            }
+        })
+    ;
 }

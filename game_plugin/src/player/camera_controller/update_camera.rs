@@ -1,5 +1,5 @@
 use bevy::{
-    core::Time,
+    // core::Time,
     ecs::system::Query,
     math::{
         Vec3,
@@ -15,14 +15,14 @@ use bevy::{
 
 use smooth_bevy_cameras::LookTransform;
 
-use crate::{orbit::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
+use crate::{orbit::components::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
 
 use super::{CameraRadius, CameraSettings};
 
 pub(crate) fn update_camera(
     mut q_camera: Query<(&mut LookTransform, &mut CameraRadius)>,
     q_targets: Query<(Entity, &Transform), With<OrbitalBody>>,
-    time: Res<Time>,
+    // time: Res<Time>,
     actions: Res<Actions>,
     settings: Res<CameraSettings>,
     orbit_target: Res<OrbitTarget>,
