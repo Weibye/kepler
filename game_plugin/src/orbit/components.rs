@@ -8,3 +8,7 @@ pub struct OrbitalBody {
     pub radius: f32,
     pub angular_velocity: f32,
 }
+
+pub struct CircularOrbit {
+    
+}

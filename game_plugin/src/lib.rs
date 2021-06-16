@@ -9,6 +9,7 @@ use bevy::{
 };
 // use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 
+use bevy_egui::{egui, EguiContext, EguiPlugin};
 use orbit::OrbitPlugin;
 use player::PlayerPlugin;
 
@@ -30,6 +31,8 @@ impl Plugin for GamePlugin {
             // Plugins
             .add_plugin(OrbitPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(EguiPlugin)
+            .add_system(ui_example.system())
             // .add_plugin(CameraPlugin)
             // .add_plugin(FrameTimeDiagnosticsPlugin::default())
             // App state & flow
@@ -72,6 +75,11 @@ impl Plugin for GamePlugin {
     }
 }
 
+fn ui_example(egui_context: Res<EguiContext>) {
+    egui::Window::new("Hello").show(egui_context.ctx(), |ui| {
+        ui.label("world");
+    });
+}
 
 // fn entering_state(state: Res<State<GameState>>) {
 //     // info!("Entering {:?}", state);

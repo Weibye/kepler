@@ -1,5 +1,8 @@
-use bevy::{pbr::AmbientLight, prelude::{App, ClearColor, Color, Msaa, WindowDescriptor}};
 use bevy::DefaultPlugins;
+use bevy::{
+    pbr::AmbientLight,
+    prelude::{App, ClearColor, Color, Msaa, WindowDescriptor},
+};
 use game_plugin::GamePlugin;
 
 fn main() {

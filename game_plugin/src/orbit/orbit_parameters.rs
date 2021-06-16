@@ -22,6 +22,37 @@ pub struct OrbitParameters {
     /// _Range: \[0..=2PI\]_
     /// defines the position of the orbital body along the orbital elipse at t = 0
     pub true_anomaly: f32,
+
+    // / ### Mean Anomaly
+    // /
+    // / `M = n(t-t1)` from mean angular motion
+    // /
+    // / `M = E - e sin E` from eccentric anomaly
+    // /
+    // / `M = M0 + n(t-t0)` => M0 = mean anomaly at epoch and t0 is the epoch
+    // /
+    // / => t => current time
+    // / => t1 => time which the body is at pericenter / periapsis
+    // / => (t-t1) => time difference between then and now
+    // pub mean_anomaly: f32,
+
+    // /// ### Eccentric Anomaly
+    // /// 
+    // pub eccentric_anomaly: f32,
+
+    // /// ### Mean Angular Motion
+    // ///
+    // /// `n = 2PI / T`
+    // ///
+    // /// `T` => orbital period
+    // pub mean_angular_motion: f32,
+
+    // /// ### Orbital Period
+    // ///
+    // /// The time it takes for one full complete orbit
+    // ///
+    // /// `T`
+    // pub orbital_period: f32
 }
 
 impl OrbitParameters {
@@ -35,6 +66,10 @@ impl OrbitParameters {
             inclination: rng.gen_range(0.0..PI*2.),
             argument_of_periapsis: rng.gen_range(0.0..PI*2.),
             true_anomaly: rng.gen_range(0.0..PI*2.),
+            // mean_anomaly: 0.0,
+            // eccentric_anomaly: 0.0,
+            // mean_angular_motion: 0.0,
+            // orbital_period: 0.0,
         }
     }
 

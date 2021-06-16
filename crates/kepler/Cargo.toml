@@ -1,5 +1,5 @@
 [package]
-name = "kepler_game"
+name = "kepler"
 version = "0.1.0"
 authors = ["Andreas Weibye <13300393+Weibye@users.noreply.github.com>"]
 edition = "2018"
@@ -7,5 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = "0.5"
-game_plugin = { path = "game_plugin" }
+physical_constants = "0.4.1"
+bevy_math = "0.5.0"
+rand = "0.8.3"

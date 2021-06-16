@@ -1,4 +1,9 @@
+use std::f32::consts::PI;
+
 use bevy::{math::Vec3, prelude::{Res, Transform}};
+use rand::Rng;
+use rand_pcg::Pcg64;
+use rand_seeder::Seeder;
 
 use crate::{orbit::{components::OrbitalBody, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}}, utils::quat_from_axes};
 
@@ -8,6 +13,7 @@ use super::{HierarchyNode, OrbitNode, RootNode, WorldGenerationSettings};
 pub(super) fn generate_world(settings: Res<WorldGenerationSettings>) -> RootNode {
 
     let root_reference = Transform::default();
+    let mut rng: Pcg64 = Seeder::from("KEPLER").make_rng();
 
     let solar_system_node = RootNode {
         reference_frame: root_reference,
@@ -19,11 +25,11 @@ pub(super) fn generate_world(settings: Res<WorldGenerationSettings>) -> RootNode
             // R-O pair can have multiple R-O child
             // Planets
             for _ in 0..3 {
-                let planet = generate_node(&root_reference);
+                let planet = generate_node(&root_reference, &mut rng);
 
                 // 
-                let moon_01 = generate_node(&planet.reference_frame);
-                let moon_02 = generate_node(&planet.reference_frame);
+                let moon_01 = generate_node(&planet.reference_frame, &mut rng);
+                let moon_02 = generate_node(&planet.reference_frame, &mut rng);
                 let mut planet_children: Vec<HierarchyNode> = Vec::new();
                 planet_children.push(HierarchyNode { node: moon_01,  children: None });
                 planet_children.push(HierarchyNode { node: moon_02,  children: None });
@@ -54,9 +60,18 @@ fn transform_from_orbit(orbit: OrbitParameters, reference_frame: &Transform) -> 
     }
 }
 
-fn generate_node(parent_reference: &Transform) -> OrbitNode {
+fn generate_node(parent_reference: &Transform, rng: &mut Pcg64) -> OrbitNode {
 
-    let orbit = OrbitParameters::from_rand(); 
+    // let mut rng = rand::thread_rng();
+    
+    let orbit = OrbitParameters {
+        eccentricity: rng.gen_range(0.0..0.1),
+        semi_major_axis: rng.gen_range(1.0..=2.5),
+        longitude_of_ascending_node: rng.gen_range(0.0..PI*2.),
+        inclination: rng.gen_range(0.0..0.10),// PI*2.),
+        argument_of_periapsis: rng.gen_range(0.0..0.10),// PI*2.),
+        true_anomaly: rng.gen_range(0.0..PI*2.),
+    }; 
 
     OrbitNode {
         orbit,
