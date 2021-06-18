@@ -1,7 +1,7 @@
 use crate::*;
 
 
-struct EllipticalOrbit {
+struct EllipticalOrbitDifficult {
     eccentricity: Eccentricity,
     semimajor_axis: SemiMajorAxis,
     inclination: Inclination,
@@ -12,12 +12,12 @@ struct EllipticalOrbit {
 
 // impl EllipticalOrbit {}
 
-struct OrbitalPlane {
+struct OrbitalPlaneDifficult {
     longitude_of_ascending_node: Angle,
     argument_of_periapsis: Angle,
     true_anomaly: Angle,
 }
 
-struct CircularOrbit {
+struct CircularOrbitDifficult {
     radius: Length,
 }

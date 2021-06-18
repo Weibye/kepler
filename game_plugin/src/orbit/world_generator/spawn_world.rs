@@ -1,4 +1,5 @@
 use bevy::prelude::{Assets, BuildChildren, ChildBuilder, Commands, GlobalTransform, Mesh, Res, ResMut, StandardMaterial, Transform};
+use kepler::OrbitalBody;
 
 use crate::orbit::bundles::{
     OrbitalBodyBundle,
@@ -16,11 +17,36 @@ pub(super) fn spawn_world(
 ) {
     let solar_system = generate_world(settings);
 
-    let sun = commands
+    let sun_frame = commands
         .spawn()
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())
+        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::default()))
         .id();
+
+    let orbital_body_sun = OrbitalBody::from_sphere(0.5, 1.0, 0.1);
+
+    let sun_body = commands
+        .spawn()
+        .insert_bundle(OrbitalBodyBundle::from_orbital_body(orbital_body_sun, &mut meshes))
+        .id();
+
+    commands.entity(sun_frame).push_children(&[sun_body]);
+
+    let body_planet = OrbitalBody::from_sphere(0.2, 0.1, -0.3);
+
+    let planet_ref = commands
+        .spawn()
+        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::from_xyz(2.0, 0.0, 0.0)))
+        .id();
+
+    let planet_body = commands
+        .spawn()
+        .insert_bundle(OrbitalBodyBundle::from_orbital_body(body_planet, &mut meshes))
+        .id();
+
+    commands.entity(planet_ref).push_children(&[planet_body]);
+
+    commands.entity(sun_frame).push_children(&[planet_ref]);
+
 
     // let root = commands
     //     .spawn()

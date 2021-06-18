@@ -1,6 +1,7 @@
 use bevy::{core::Time, math::Quat, prelude::{Query, Res, Transform}};
 
-use crate::orbit::components::OrbitalBody;
+use kepler::OrbitalBody;
+
 
 
 /// Rotates the orbital bodies along their own axis of rotation
@@ -10,6 +11,6 @@ pub(crate) fn rotate_orbital_bodies(
 ) {
     for (mut transform, body) in query.iter_mut() {
         let up = transform.local_y();
-        transform.rotation *= Quat::from_axis_angle(up, body.angular_velocity * time.delta_seconds());
+        transform.rotation *= Quat::from_axis_angle(up, body.spin_velocity as f32 * time.delta_seconds());
     }
 }

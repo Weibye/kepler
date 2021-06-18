@@ -1,27 +1,18 @@
-use bevy::{
-    // core::Time,
-    ecs::system::Query,
-    math::{
+use bevy::{ecs::system::Query, math::{
         Vec3,
         Mat4,
-    }, 
-    prelude::{
-        Entity, 
-        Res, 
-        Transform, 
-        With
-    }
-};
+    }, prelude::{Entity, GlobalTransform, Res, Transform, With, info}};
 
+use kepler::OrbitalBody;
 use smooth_bevy_cameras::LookTransform;
 
-use crate::{orbit::components::OrbitalBody, player::{input::Actions, orbit_picker::OrbitTarget}};
+use crate::player::{input::Actions, orbit_picker::OrbitTarget};
 
 use super::{CameraRadius, CameraSettings};
 
 pub(crate) fn update_camera(
     mut q_camera: Query<(&mut LookTransform, &mut CameraRadius)>,
-    q_targets: Query<(Entity, &Transform), With<OrbitalBody>>,
+    q_targets: Query<(Entity, &GlobalTransform), With<OrbitalBody>>,
     // time: Res<Time>,
     actions: Res<Actions>,
     settings: Res<CameraSettings>,
@@ -35,8 +26,8 @@ pub(crate) fn update_camera(
         // Target
         match orbit_target.selection {
             Some(target_entity) => {
-                if let Ok((_, target_transform)) = q_targets.get(target_entity) {
-                    camera.target = target_transform.translation;
+                if let Ok((_, target_glob_transform)) = q_targets.get(target_entity) {
+                    camera.target = target_glob_transform.translation;
                 }
             },
             None => camera.target = Vec3::ZERO,

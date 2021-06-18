@@ -11,12 +11,15 @@ pub(crate) fn select_orbits(
     mut select_target: ResMut<OrbitTarget>,
 ) {
     for event in events.iter() {
+        println!("Picking event!");
         match event {
             PickingEvent::Selection(selection) => {
                 match selection {
 
                     // Selection
                     SelectionEvent::JustSelected(selected_entity) => {
+                        println!("Selection event!");
+
                         match select_target.selection {
                             Some(existing) if existing != *selected_entity => select_target.selection = Some(*selected_entity),
                             Some(_) => (),

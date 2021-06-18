@@ -1,12 +1,12 @@
 mod spawn_world;
 mod generate_world;
 
+use kepler::OrbitalBody;
 use spawn_world::spawn_world;
 
 use bevy::prelude::{AppBuilder, IntoSystem, Plugin, Transform};
 
 use super::{
-    components::OrbitalBody, 
     orbit_parameters::OrbitParameters
 };
 

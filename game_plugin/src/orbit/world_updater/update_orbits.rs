@@ -5,7 +5,7 @@ use bevy::{
     prelude::*
 };
 
-use crate::orbit::{components::{OrbitalBody, ReferenceFrame}, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
+use crate::orbit::{components::{ReferenceFrame}, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
 
 pub(crate) fn move_orbital_bodies(
     // mut q_orbits: Query<(Entity, &mut Transform, &OrbitParameters), With<(Parent, ReferenceFrame)>>,

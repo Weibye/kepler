@@ -1,7 +1,8 @@
 use bevy::{pbr::PbrBundle, prelude::*};
 use bevy_mod_picking::{BoundVol, PickableBundle};
+use kepler::OrbitalBody;
 
-use super::{components::{OrbitalBody, ReferenceFrame}, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
+use super::{components::ReferenceFrame, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
 
 #[derive(Bundle)]
 pub struct OrbitalBodyBundle {
@@ -16,11 +17,7 @@ pub struct OrbitalBodyBundle {
 impl OrbitalBodyBundle {
     pub fn from_radius(radius: f32, mesh_handle: &mut ResMut<Assets<Mesh>>) -> Self {
         OrbitalBodyBundle {
-            body: OrbitalBody {
-                mass: 1.0,
-                radius,
-                angular_velocity: 1.0,
-            },
+            body: OrbitalBody::from_sphere(radius, 1.0, 1.0),
             pbr: PbrBundle {
                 mesh: mesh_handle.add(Mesh::from(
                         shape::Icosphere { 

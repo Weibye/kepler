@@ -6,8 +6,10 @@ mod body;
 pub use keplerian_elements::*;
 pub use base_units::*;
 pub use orbits::*;
+pub use body::*;
 
-use std::f64::consts::PI;
+use std::f32::consts::PI as PI32;
+use std::f64::consts::PI as PI64;
 use physical_constants::NEWTONIAN_CONSTANT_OF_GRAVITATION;
 use rand::*;
 
@@ -40,7 +42,7 @@ impl OrbitalPeriod {
         semi_major_axis: SemiMajorAxis,
     ) -> Self {
         OrbitalPeriod(Time::new(
-            2. * PI * (semi_major_axis.0.powf(3.0) / standard_gravitational_parameter.0).sqrt(),
+            2. * PI64 * (semi_major_axis.0.powf(3.0) / standard_gravitational_parameter.0).sqrt(),
         ))
     }
 
@@ -70,7 +72,7 @@ struct MeanAngularMotion(AngularVelocity);
 impl MeanAngularMotion {
     fn from_period(obital_period: OrbitalPeriod) -> Self {
         MeanAngularMotion(
-            AngularVelocity::new(2. * PI / obital_period.val().val())
+            AngularVelocity::new(2. * PI64 / obital_period.val().val())
         )
     }
 
@@ -134,7 +136,7 @@ struct Dummy;
 
 
 // #[test]
-pub fn eccentric_anomaly_solver(mean_anomaly: f64, eccentricity: f64) {
+pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) {
     let mut rng = rand::thread_rng();
     let equality_threshold = 0.000000001;
     let iterations = 20;
@@ -164,15 +166,15 @@ pub fn eccentric_anomaly_solver(mean_anomaly: f64, eccentricity: f64) {
     println!("E is {:?}", guess);
 }
 
-pub fn calc_eccentric(eccentric_anomaly: f64, eccentricity: f64) -> f64 {
+pub fn calc_eccentric(eccentric_anomaly: f32, eccentricity: f32) -> f32 {
     eccentric_anomaly - eccentricity * eccentric_anomaly.sin()
 }
 
-pub fn calc_true_anomaly(eccentricity: f64, eccentric_anomaly: f64) {
+pub fn calc_true_anomaly(eccentricity: f32, eccentric_anomaly: f32) {
     2.0 * (((1.0 + eccentricity) / (1.0 - eccentricity)).sqrt() * (eccentric_anomaly / 2.0).tan()).atan();
 }
 
-pub fn radius_at_true_anomaly(eccentricity: f64, true_anomaly: f64, semi_major_axis: f64) -> f64 {
+pub fn radius_at_true_anomaly(eccentricity: f32, true_anomaly: f32, semi_major_axis: f32) -> f32 {
     (semi_major_axis * (1.0 - eccentricity.powf(2.0))) / (1.0 - eccentricity * true_anomaly.cos())
 }
 
