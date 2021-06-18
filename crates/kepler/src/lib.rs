@@ -90,12 +90,6 @@ impl MeanAngularMotion {
 #[derive(Debug)]
 struct MeanAnomaly(f32);
 
-// impl MeanAnomaly {
-//     fn from_eccentric_anomaly() -> Self {
-//         todo!();
-//     }
-// }
-
 /// Inclination
 ///
 /// Notation: `i`
@@ -136,7 +130,7 @@ struct Dummy;
 
 
 // #[test]
-pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) {
+pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) -> f32 {
     let mut rng = rand::thread_rng();
     let equality_threshold = 0.000000001;
     let iterations = 20;
@@ -164,18 +158,30 @@ pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) {
         guess += difference * 0.995;
     }
     println!("E is {:?}", guess);
+
+    guess
 }
 
 pub fn calc_eccentric(eccentric_anomaly: f32, eccentricity: f32) -> f32 {
     eccentric_anomaly - eccentricity * eccentric_anomaly.sin()
 }
 
-pub fn calc_true_anomaly(eccentricity: f32, eccentric_anomaly: f32) {
-    2.0 * (((1.0 + eccentricity) / (1.0 - eccentricity)).sqrt() * (eccentric_anomaly / 2.0).tan()).atan();
+pub fn calc_true_anomaly(eccentricity: f32, eccentric_anomaly: f32) -> f32 {
+    2.0 * (((1.0 + eccentricity) / (1.0 - eccentricity)).sqrt() * (eccentric_anomaly / 2.0).tan()).atan()
 }
 
 pub fn radius_at_true_anomaly(eccentricity: f32, true_anomaly: f32, semi_major_axis: f32) -> f32 {
-    (semi_major_axis * (1.0 - eccentricity.powf(2.0))) / (1.0 - eccentricity * true_anomaly.cos())
+    // Check if there should be a 1.0 + eccentricity below the divider
+    (semi_major_axis * (1.0 - eccentricity.powf(2.0))) / (1.0 + eccentricity * true_anomaly.cos())
+}
+
+// Old 
+fn radius_at_true_anomaly_old(semi_major_axis: f32, eccentricity: f32, true_anomaly: f32) -> f32 {
+
+    let semi_latus_rectum = semi_major_axis * (1. - eccentricity.powf(2.));
+    let radius = semi_latus_rectum / (1. + eccentricity * true_anomaly.cos());
+
+    radius
 }
 
 fn position_at_true_anomaly() {

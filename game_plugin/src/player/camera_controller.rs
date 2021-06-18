@@ -15,11 +15,11 @@ impl Plugin for CameraControllerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
             .insert_resource(CameraSettings {
-                init_radius: 3.5,
+                init_radius: 15.0,
                 init_direction: Vec3::new(1.0, 1.5, 0.0).normalize(),
                 min_radius: 0.7,
                 max_radius: 25.0,
-                scroll_speed: 0.35,
+                scroll_speed: 0.50,
                 smooth_factor: 0.90,
             })
             .add_plugin(LookTransformPlugin)

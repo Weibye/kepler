@@ -1992,6 +1992,7 @@ name = "kepler"
 version = "0.1.0"
 dependencies = [
  "bevy_math",
+ "bevy_transform",
  "physical_constants",
  "rand",
 ]

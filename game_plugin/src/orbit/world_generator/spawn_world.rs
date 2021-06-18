@@ -1,5 +1,5 @@
 use bevy::prelude::{Assets, BuildChildren, ChildBuilder, Commands, GlobalTransform, Mesh, Res, ResMut, StandardMaterial, Transform};
-use kepler::OrbitalBody;
+use kepler::{EllipticalOrbit, OrbitalBody};
 
 use crate::orbit::bundles::{
     OrbitalBodyBundle,
@@ -15,11 +15,10 @@ pub(super) fn spawn_world(
     mut materials: ResMut<Assets<StandardMaterial>>,
     settings: Res<WorldGenerationSettings>
 ) {
-    let solar_system = generate_world(settings);
-
+    let sun_frame_transform = Transform::default();
     let sun_frame = commands
         .spawn()
-        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::default()))
+        .insert_bundle(ReferenceFrameBundle::from_transform(sun_frame_transform))
         .id();
 
     let orbital_body_sun = OrbitalBody::from_sphere(0.5, 1.0, 0.1);
@@ -31,11 +30,23 @@ pub(super) fn spawn_world(
 
     commands.entity(sun_frame).push_children(&[sun_body]);
 
+    let planet_orbit = EllipticalOrbit::new(
+        0.5, 
+        4.5, 
+        0.0, 
+        0.0,
+        0.0,
+        0.0,
+        0.00000001);
+
+    let position = planet_orbit.get_position_vector(&sun_frame_transform);
+    
     let body_planet = OrbitalBody::from_sphere(0.2, 0.1, -0.3);
 
     let planet_ref = commands
         .spawn()
-        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::from_xyz(2.0, 0.0, 0.0)))
+        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::from_translation(position)))
+        .insert(planet_orbit)
         .id();
 
     let planet_body = commands
@@ -43,8 +54,8 @@ pub(super) fn spawn_world(
         .insert_bundle(OrbitalBodyBundle::from_orbital_body(body_planet, &mut meshes))
         .id();
 
+    
     commands.entity(planet_ref).push_children(&[planet_body]);
-
     commands.entity(sun_frame).push_children(&[planet_ref]);
 
 
