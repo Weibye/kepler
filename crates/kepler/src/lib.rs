@@ -1,12 +1,12 @@
-mod keplerian_elements;
 mod base_units;
 mod orbits;
 mod body;
+mod shapes;
 
-pub use keplerian_elements::*;
 pub use base_units::*;
 pub use orbits::*;
 pub use body::*;
+pub use shapes::*;
 
 use std::f32::consts::PI as PI32;
 use std::f64::consts::PI as PI64;
@@ -23,31 +23,6 @@ use rand::*;
 /// - hyperbolic trajectory: e > 1
 struct Eccentricity(f64);
 
-struct EccentricityVector();
-
-/// Orbital period
-///
-/// Notation: `T`
-struct OrbitalPeriod(Time);
-
-impl OrbitalPeriod {
-    /// Creates a new orbital period of time T
-    pub fn new(period: Time) -> Self {
-        OrbitalPeriod(period)
-    }
-
-    /// Create an orbital period from semi major axis and standard_gravitational_parameter
-    pub fn from_semi_major_axis(
-        standard_gravitational_parameter: GravitationalParameter,
-        semi_major_axis: SemiMajorAxis,
-    ) -> Self {
-        OrbitalPeriod(Time::new(
-            2. * PI64 * (semi_major_axis.0.powf(3.0) / standard_gravitational_parameter.0).sqrt(),
-        ))
-    }
-
-    pub fn val(&self) -> &Time { &self.0 }
-}
 
 /// The standard gravitational parameter μ of a celestial body
 /// is the product of the gravitational constant G and the mass M of the body.
@@ -65,35 +40,9 @@ impl GravitationalParameter {
     }
 }
 
-struct SemiMajorAxis(f64);
-
-struct MeanAngularMotion(AngularVelocity);
-
-impl MeanAngularMotion {
-    fn from_period(obital_period: OrbitalPeriod) -> Self {
-        MeanAngularMotion(
-            AngularVelocity::new(2. * PI64 / obital_period.val().val())
-        )
-    }
-
-    fn from_semi_major_axis(
-        semi_major_axis: SemiMajorAxis,
-        gravitational_parameter: GravitationalParameter,
-    ) -> Self {
-        MeanAngularMotion(
-            AngularVelocity::new(
-                (gravitational_parameter.0 / semi_major_axis.0.powf(3.)).sqrt(),
-        ))
-    }
-}
-
 #[derive(Debug)]
 struct MeanAnomaly(f32);
 
-/// Inclination
-///
-/// Notation: `i`
-struct Inclination(Angle);
 
 struct EscapeVelocity(f64); // Should simply be Velocity?
 
@@ -103,9 +52,6 @@ impl EscapeVelocity {
     }
 }
 
-/// True anomaly
-/// Notation: `θ`
-struct TrueAnomaly(f64);
 
 /// Orbital State Vectors
 /// https://en.wikipedia.org/wiki/Orbital_state_vectors
@@ -129,11 +75,11 @@ struct OrbitalVelocityVector();
 struct Dummy;
 
 
-// #[test]
+// TODO: Make this an PID controller
 pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) -> f32 {
     let mut rng = rand::thread_rng();
-    let equality_threshold = 0.000000001;
-    let iterations = 20;
+    let equality_threshold = 0.000001;
+    let iterations = 100;
     // let period = OrbitalPeriod::new(Time::new(2.5));
     // // let mean_anomaly = MeanAngularMotion::from_period(period);
     // let mean_anomaly = 2. * PI / 365.0 * 24.0 * 60.0 * 60.0;
@@ -145,9 +91,9 @@ pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) -> f32 {
     let lower_bound = mean_anomaly - 10.0;
     let upper_bound = mean_anomaly + 10.0;
     let mut guess = rng.gen_range(lower_bound..upper_bound); // rng.gen_range(0.0..10.0);
-
+    let mut exit_iteration = 0;
     // TOOD: Replace with a PID controller
-    for _ in 0..iterations {
+    for n in 0..iterations {
         // run the calc
         let result = calc_eccentric(guess, eccentricity);
         let difference = mean_anomaly - result;
@@ -156,8 +102,9 @@ pub fn eccentric_anomaly_solver(mean_anomaly: f32, eccentricity: f32) -> f32 {
         if difference.abs() <= equality_threshold { break; }
         
         guess += difference * 0.995;
+        exit_iteration = n;
     }
-    println!("E is {:?}", guess);
+    // println!("E is {:?} | {:?}", guess, exit_iteration);
 
     guess
 }
@@ -175,17 +122,9 @@ pub fn radius_at_true_anomaly(eccentricity: f32, true_anomaly: f32, semi_major_a
     (semi_major_axis * (1.0 - eccentricity.powf(2.0))) / (1.0 + eccentricity * true_anomaly.cos())
 }
 
-// Old 
-fn radius_at_true_anomaly_old(semi_major_axis: f32, eccentricity: f32, true_anomaly: f32) -> f32 {
-
-    let semi_latus_rectum = semi_major_axis * (1. - eccentricity.powf(2.));
-    let radius = semi_latus_rectum / (1. + eccentricity * true_anomaly.cos());
-
-    radius
-}
-
-fn position_at_true_anomaly() {
-
+/// Orbital Period
+pub fn orbital_period(semimajor_axis: f32, mass: f32) -> f32 {
+    2. * PI32 * (semimajor_axis.powf(3.0) / mass * NEWTONIAN_CONSTANT_OF_GRAVITATION as f32).sqrt()
 }
 
 

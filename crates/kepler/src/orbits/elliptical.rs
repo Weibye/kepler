@@ -2,7 +2,6 @@ use std::{f32::consts::PI, ops::Rem};
 
 use bevy_math::{Quat, Vec3};
 use bevy_transform::components::Transform;
-use physical_constants::NEWTONIAN_CONSTANT_OF_GRAVITATION;
 use rand::{Rng, thread_rng};
 
 use crate::{calc_true_anomaly, eccentric_anomaly_solver, radius_at_true_anomaly};
@@ -10,11 +9,23 @@ use crate::{calc_true_anomaly, eccentric_anomaly_solver, radius_at_true_anomaly}
 pub struct EllipticalOrbit {
     eccentricity: f32,
     semimajor_axis: f32,
+
+    /// True anomaly
+    ///
+    /// Notation: `θ`
     true_anomaly: f32,
     longitude_of_ascending_node: f32,
     argument_of_periapsis: f32,
+    
+    /// Inclination
+    ///
+    /// Notation: `i`
     inclination: f32,
-    mass: f32,
+
+    /// Orbital period
+    ///
+    /// Notation: `T`
+    period: f32,
 }
 
 impl EllipticalOrbit {
@@ -26,7 +37,7 @@ impl EllipticalOrbit {
         longitude_of_ascending_node: f32, 
         argument_of_periapsis: f32, 
         inclination: f32,
-        mass: f32,
+        period: f32,
     ) -> Self {
         EllipticalOrbit {
             eccentricity,
@@ -35,7 +46,7 @@ impl EllipticalOrbit {
             longitude_of_ascending_node,
             argument_of_periapsis,
             inclination,
-            mass
+            period,
         }
     }
 
@@ -48,7 +59,7 @@ impl EllipticalOrbit {
             inclination: rng.gen_range(0.0..PI*2.),
             argument_of_periapsis: rng.gen_range(0.0..PI*2.),
             true_anomaly: rng.gen_range(0.0..PI*2.),
-            mass: rng.gen_range(1.0..1000.0),
+            period: rng.gen_range(1.0..60.0),
         }
     }
 
@@ -59,7 +70,7 @@ impl EllipticalOrbit {
     pub fn longitude_of_ascending_node(&self) -> f32 { self.longitude_of_ascending_node }
     pub fn argument_of_periapsis(&self) -> f32 { self.argument_of_periapsis }
     pub fn inclination(&self) -> f32 { self.inclination }
-    pub fn mass(&self) -> f32 { self.mass }
+    pub fn period(&self) -> f32 { self.period }
 
     // Setters
     pub fn set_true_anomaly(&mut self, value: f32) { self.true_anomaly = value; }
@@ -73,10 +84,6 @@ impl EllipticalOrbit {
         direction.normalize() * radius
     }
 
-    /// Orbital Period
-    pub fn period(&self) -> f32 {
-        2. * PI * (self.semimajor_axis.powf(3.0) / self.mass * NEWTONIAN_CONSTANT_OF_GRAVITATION as f32).sqrt()
-    }
 
     // Average motion of mean anomaly
     pub fn mean_angular_motion(&self) -> f32 {

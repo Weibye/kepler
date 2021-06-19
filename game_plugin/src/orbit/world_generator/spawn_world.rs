@@ -31,13 +31,13 @@ pub(super) fn spawn_world(
     commands.entity(sun_frame).push_children(&[sun_body]);
 
     let planet_orbit = EllipticalOrbit::new(
-        0.5, 
+        0.9, 
         4.5, 
         0.0, 
         0.0,
         0.0,
         0.0,
-        0.00000001);
+        25.0);
 
     let position = planet_orbit.get_position_vector(&sun_frame_transform);
     

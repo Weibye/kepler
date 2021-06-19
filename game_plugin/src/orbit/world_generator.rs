@@ -1,8 +1,10 @@
 mod spawn_world;
 mod generate_world;
+mod ellipse_create;
 
 use kepler::OrbitalBody;
-use spawn_world::spawn_world;
+use spawn_world::*;
+use ellipse_create::*;
 
 use bevy::prelude::{AppBuilder, IntoSystem, Plugin, Transform};
 
@@ -18,6 +20,7 @@ impl Plugin for WorldGeneratorPlugin {
         app
             .insert_resource(WorldGenerationSettings {})
             .add_startup_system(spawn_world.system())
+            .add_startup_system(create_ellipse.system())
         ;
     }
 }

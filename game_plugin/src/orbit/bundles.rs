@@ -49,27 +49,52 @@ impl OrbitalBodyBundle {
     }
 }
 
-#[derive(Bundle)]
-pub struct ReferenceFrameBundle {
-    marker: ReferenceFrame,
+#[derive(Bundle, Default)]
+pub struct TransformBundle {
     transform: Transform,
     global_transform: GlobalTransform,
 }
 
-impl ReferenceFrameBundle {
+impl TransformBundle {
+    pub fn from_xyz(x:f32, y:f32, z:f32) -> Self {
+        TransformBundle::from_translation(Vec3::new(x, y, z))
+    }
+
     pub fn from_translation(translation: Vec3) -> Self {
-        ReferenceFrameBundle {
-            marker: ReferenceFrame,
+        TransformBundle {
             transform: Transform::from_translation(translation),
             global_transform: GlobalTransform::default(),
         }
     }
 
     pub fn from_transform(transform: Transform) -> Self {
-        ReferenceFrameBundle {
-            marker: ReferenceFrame,
+        TransformBundle {
             transform,
             global_transform: GlobalTransform::default(),
+        }
+    }
+}
+
+
+#[derive(Bundle)]
+pub struct ReferenceFrameBundle {
+    marker: ReferenceFrame,
+    #[bundle]
+    transform: TransformBundle
+}
+
+impl ReferenceFrameBundle {
+    pub fn from_translation(translation: Vec3) -> Self {
+        ReferenceFrameBundle {
+            marker: ReferenceFrame,
+            transform: TransformBundle::from_translation(translation),
+        }
+    }
+
+    pub fn from_transform(transform: Transform) -> Self {
+        ReferenceFrameBundle {
+            marker: ReferenceFrame,
+            transform: TransformBundle::from_transform(transform),
         }
     }
 
@@ -79,12 +104,7 @@ impl ReferenceFrameBundle {
         
         ReferenceFrameBundle {
             marker: ReferenceFrame,
-            transform: Transform {
-                translation,
-                rotation: Quat::IDENTITY,
-                scale: Vec3::ONE,
-            },
-            global_transform: GlobalTransform::default(),
+            transform: TransformBundle::from_translation(translation),
         }
     }
 }
@@ -92,8 +112,7 @@ impl Default for ReferenceFrameBundle {
     fn default() -> Self {
         ReferenceFrameBundle { 
             marker: ReferenceFrame,
-            transform: Transform::default(),
-            global_transform: GlobalTransform::default(),
+            transform: TransformBundle::default(),
         }
     }
 }
