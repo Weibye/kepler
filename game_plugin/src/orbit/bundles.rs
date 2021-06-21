@@ -1,6 +1,6 @@
-use bevy::{pbr::PbrBundle, prelude::*};
+use bevy::{prelude::*, pbr::PbrBundle};
 use bevy_mod_picking::{BoundVol, PickableBundle};
-use kepler::OrbitalBody;
+use kepler::{Ellipse, OrbitalBody, OrbitalPlane, TransformBundle};
 
 use super::{components::ReferenceFrame, orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
 
@@ -49,32 +49,6 @@ impl OrbitalBodyBundle {
     }
 }
 
-#[derive(Bundle, Default)]
-pub struct TransformBundle {
-    transform: Transform,
-    global_transform: GlobalTransform,
-}
-
-impl TransformBundle {
-    pub fn from_xyz(x:f32, y:f32, z:f32) -> Self {
-        TransformBundle::from_translation(Vec3::new(x, y, z))
-    }
-
-    pub fn from_translation(translation: Vec3) -> Self {
-        TransformBundle {
-            transform: Transform::from_translation(translation),
-            global_transform: GlobalTransform::default(),
-        }
-    }
-
-    pub fn from_transform(transform: Transform) -> Self {
-        TransformBundle {
-            transform,
-            global_transform: GlobalTransform::default(),
-        }
-    }
-}
-
 
 #[derive(Bundle)]
 pub struct ReferenceFrameBundle {
@@ -95,6 +69,12 @@ impl ReferenceFrameBundle {
         ReferenceFrameBundle {
             marker: ReferenceFrame,
             transform: TransformBundle::from_transform(transform),
+        }
+    }
+    pub fn from_transforms(local: Transform, global: GlobalTransform) -> Self {
+        ReferenceFrameBundle {
+            marker: ReferenceFrame,
+            transform: TransformBundle::from_transforms(local, global),
         }
     }
 

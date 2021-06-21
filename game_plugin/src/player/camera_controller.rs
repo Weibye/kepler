@@ -16,10 +16,10 @@ impl Plugin for CameraControllerPlugin {
         app
             .insert_resource(CameraSettings {
                 init_radius: 15.0,
-                init_direction: Vec3::new(1.0, 1.5, 0.0).normalize(),
+                init_direction: Vec3::new(0.0, 1.0, 1.0).normalize(),
                 min_radius: 0.7,
-                max_radius: 25.0,
-                scroll_speed: 0.50,
+                max_radius: 40.0,
+                scroll_speed: 0.60,
                 smooth_factor: 0.90,
             })
             .add_plugin(LookTransformPlugin)

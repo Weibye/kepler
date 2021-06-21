@@ -39,26 +39,27 @@ pub(super) fn spawn_world(
         0.0,
         25.0);
 
-    let position = planet_orbit.get_position_vector(&sun_frame_transform);
+    // let position = planet_orbit.get_position_vector(&sun_frame_transform);
     
-    let body_planet = OrbitalBody::from_sphere(0.2, 0.1, -0.3);
+    // let body_planet = OrbitalBody::from_sphere(0.2, 0.1, -0.3);
 
-    let planet_ref = commands
-        .spawn()
-        .insert_bundle(ReferenceFrameBundle::from_transform(Transform::from_translation(position)))
-        .insert(planet_orbit)
-        .id();
+    // let planet_ref = commands
+    //     .spawn()
+    //     .insert_bundle(ReferenceFrameBundle::from_transform(Transform::from_translation(position)))
+    //     .insert(planet_orbit)
+    //     .id();
 
-    let planet_body = commands
-        .spawn()
-        .insert_bundle(OrbitalBodyBundle::from_orbital_body(body_planet, &mut meshes))
-        .id();
+    // let planet_body = commands
+    //     .spawn()
+    //     .insert_bundle(OrbitalBodyBundle::from_orbital_body(body_planet, &mut meshes))
+    //     .id();
 
     
-    commands.entity(planet_ref).push_children(&[planet_body]);
-    commands.entity(sun_frame).push_children(&[planet_ref]);
+    // commands.entity(planet_ref).push_children(&[planet_body]);
+    // commands.entity(sun_frame).push_children(&[planet_ref]);
 
-
+ // =================================================================
+ 
     // let root = commands
     //     .spawn()
     //     .insert_bundle(ReferenceFrameBundle::from_transform(solar_system.reference_frame))

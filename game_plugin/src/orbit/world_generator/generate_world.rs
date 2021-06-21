@@ -1,12 +1,12 @@
 use std::f32::consts::PI;
 
 use bevy::{math::Vec3, prelude::{Res, Transform}};
-use kepler::OrbitalBody;
+use kepler::{OrbitalBody, quat_from_axes};
 use rand::Rng;
 use rand_pcg::Pcg64;
 use rand_seeder::Seeder;
 
-use crate::{orbit::orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}, utils::quat_from_axes};
+use crate::{orbit::orbit_parameters::{OrbitParameters, orbital_position_at_true_anomaly}};
 
 use super::{HierarchyNode, OrbitNode, RootNode, WorldGenerationSettings};
 

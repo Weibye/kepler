@@ -2,11 +2,17 @@ mod base_units;
 mod orbits;
 mod body;
 mod shapes;
+mod plane;
+mod bundles;
+mod utils;
 
 pub use base_units::*;
 pub use orbits::*;
 pub use body::*;
 pub use shapes::*;
+pub use plane::*;
+pub use bundles::*;
+pub use utils::*;
 
 use std::f32::consts::PI as PI32;
 use std::f64::consts::PI as PI64;

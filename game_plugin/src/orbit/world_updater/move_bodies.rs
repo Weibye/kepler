@@ -16,8 +16,8 @@ pub(crate) fn move_orbital_bodies(
     for (parent, mut transform, body) in bodies.iter_mut() {
         if let Ok((orbit, grand_parent)) = orbits.get(parent.0) {
             if let Ok((reference, ref_transform)) = refs.get(grand_parent.0) {
-                let new_position = orbit.get_position_vector(ref_transform);
-                transform.translation = new_position;
+                // let new_position = orbit.get_position_vector(ref_transform);
+                // transform.translation = new_position;
             }
         }
     }

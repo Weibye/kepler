@@ -1,4 +1,5 @@
-use bevy::{math::{Mat3, Quat, Vec3}, prelude::Transform};
+use bevy_math::{Mat3, Quat, Vec3};
+use bevy_transform::components::Transform;
 
 
 pub fn transform_from_axis(right: Vec3, up: Vec3, forward: Vec3) -> Transform {

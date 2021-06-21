@@ -7,7 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-physical_constants = "0.4.1"
+# Bevy
 bevy_math = "0.5.0"
 bevy_transform = "0.5.0"
+bevy_ecs = "0.5.0"
+# bevy_ecs_macros = "0.5.0"
+
+# Physics & Math
+physical_constants = "0.4.1"
 rand = "0.8.3"

@@ -1,7 +1,7 @@
 use bevy::{ecs::system::Query, math::{
         Vec3,
         Mat4,
-    }, prelude::{Entity, GlobalTransform, Res, Transform, With, info}};
+    }, prelude::{Entity, GlobalTransform, Res, With}};
 
 use kepler::OrbitalBody;
 use smooth_bevy_cameras::LookTransform;

@@ -6,6 +6,7 @@ use rand::{Rng, thread_rng};
 
 use crate::{calc_true_anomaly, eccentric_anomaly_solver, radius_at_true_anomaly};
 
+
 pub struct EllipticalOrbit {
     eccentricity: f32,
     semimajor_axis: f32,
@@ -77,12 +78,12 @@ impl EllipticalOrbit {
 
 
     // Orbital Position
-    pub fn get_position_vector(&self, reference: &Transform) -> Vec3 {
-        let direction = Quat::from_axis_angle(self.zenith(reference), self.true_anomaly) * self.periapsis(reference);
-        let radius = radius_at_true_anomaly(self.eccentricity, self.true_anomaly, self.semimajor_axis);
+    // pub fn get_position_vector(&self, reference: &Transform) -> Vec3 {
+    //     let direction = Quat::from_axis_angle(self.zenith(reference), self.true_anomaly) * self.periapsis(reference);
+    //     let radius = radius_at_true_anomaly(self.eccentricity, self.true_anomaly, self.semimajor_axis);
 
-        direction.normalize() * radius
-    }
+    //     direction.normalize() * radius
+    // }
 
 
     // Average motion of mean anomaly
@@ -102,42 +103,5 @@ impl EllipticalOrbit {
         let eccentric_anomaly = eccentric_anomaly_solver(self.mean_anomaly(time), self.eccentricity);
 
         calc_true_anomaly(self.eccentricity, eccentric_anomaly)
-    }
-}
-
-trait OrbitalDirection {
-    /// Zenith of the orbital plane
-    /// Also known as Normal of the orbital plane
-    fn zenith(&self, reference: &Transform) -> Vec3;
-    fn nadir(&self, reference: &Transform) -> Vec3;
-    fn ascending(&self, reference: &Transform) -> Vec3;
-    fn descending(&self, reference: &Transform) -> Vec3;
-    fn periapsis(&self, reference: &Transform) -> Vec3;
-    fn apoapsis(&self, reference: &Transform) -> Vec3;
-}
-
-impl OrbitalDirection for EllipticalOrbit {
-    fn zenith(&self, reference: &Transform) -> Vec3 {
-        Quat::from_axis_angle(self.ascending(reference), self.inclination) * reference.local_y()
-    }
-
-    fn nadir(&self, reference: &Transform) -> Vec3 {
-        -self.zenith(reference)
-    }
-
-    fn ascending(&self, reference: &Transform) -> Vec3 {
-        Quat::from_axis_angle(reference.local_y(), self.longitude_of_ascending_node) * reference.local_z()
-    }
-
-    fn descending(&self, reference: &Transform) -> Vec3 {
-        -self.ascending(reference)
-    }
-
-    fn periapsis(&self, reference: &Transform) -> Vec3 {
-        Quat::from_axis_angle(self.zenith(reference), self.argument_of_periapsis) * self.ascending(reference)
-    }
-
-    fn apoapsis(&self, reference: &Transform) -> Vec3 {
-        -self.periapsis(reference)
     }
 }

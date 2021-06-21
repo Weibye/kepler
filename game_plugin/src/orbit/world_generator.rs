@@ -19,8 +19,9 @@ impl Plugin for WorldGeneratorPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
             .insert_resource(WorldGenerationSettings {})
-            .add_startup_system(spawn_world.system())
-            .add_startup_system(create_ellipse.system())
+            // .add_startup_system(spawn_world.system())
+            // .add_startup_system(create_ellipse.system())
+            .add_startup_system(create_ellipse_bundles.system())
         ;
     }
 }
