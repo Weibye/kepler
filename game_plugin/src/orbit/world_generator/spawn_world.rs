@@ -1,13 +1,8 @@
 use bevy::prelude::{Assets, BuildChildren, ChildBuilder, Commands, GlobalTransform, Mesh, Res, ResMut, StandardMaterial, Transform};
-use kepler::{EllipticalOrbit, OrbitalBody};
+use kepler::{EllipticalOrbit, OrbitalBody, OrbitalBodyBundle};
 
-use crate::orbit::bundles::{
-    OrbitalBodyBundle,
-    ReferenceFrameBundle,
-};
-
+use crate::orbit::bundles::ReferenceFrameBundle;
 use super::{HierarchyNode, WorldGenerationSettings, generate_world::generate_world};
-
 
 pub(super) fn spawn_world(
     mut commands: Commands,
@@ -21,11 +16,17 @@ pub(super) fn spawn_world(
         .insert_bundle(ReferenceFrameBundle::from_transform(sun_frame_transform))
         .id();
 
-    let orbital_body_sun = OrbitalBody::from_sphere(0.5, 1.0, 0.1);
-
+    // let sun_radius = 0.5;
+    // let orbital_body_sun = OrbitalBody::from_sphere(0.5, 1.0, 0.1);
+    let sun_transform = Transform::default();
     let sun_body = commands
         .spawn()
-        .insert_bundle(OrbitalBodyBundle::from_orbital_body(orbital_body_sun, &mut meshes))
+        .insert_bundle(OrbitalBodyBundle::new(
+            0.5, 
+            1.5, 
+            1.0,
+            sun_transform,
+            &mut meshes))
         .id();
 
     commands.entity(sun_frame).push_children(&[sun_body]);
@@ -126,7 +127,13 @@ fn spawn_node(node: HierarchyNode, builder: &mut ChildBuilder, mut meshes: &mut 
         .insert_bundle(ReferenceFrameBundle::from_transform(node.node.reference_frame))
         .insert(node.node.orbit)
         .with_children(|parent_builder | {
-            parent_builder.spawn_bundle(OrbitalBodyBundle::from_orbital_body(node.node.body, &mut meshes));
+            parent_builder.spawn_bundle(OrbitalBodyBundle::new(
+                node.node.body.radius,
+                node.node.body.density,
+                node.node.body.spin_velocity,
+                Transform::default(),
+                 &mut meshes
+            ));
 
             if let Some(child_nodes) = node.children {
                 for child_node in child_nodes {

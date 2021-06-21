@@ -8,7 +8,7 @@ use crate::orbit::orbit_parameters::{OrbitParameters, orbital_position_at_true_a
 use crate::player::orbit_picker::OrbitTarget;
 
 pub(crate) fn draw_orbit_lines(
-    query: Query<(&Ellipse, &OrbitalPlane, &Parent, &GlobalTransform)>,
+    query: Query<(&Ellipse, &OrbitalPlane, &Parent, &GlobalTransform, &Transform)>,
     q_reference_frames: Query<(&Transform, &GlobalTransform), With<Children>>,
     mut lines: ResMut<DebugLines>,
     selected_orbit: Res<OrbitTarget>,
@@ -18,11 +18,11 @@ pub(crate) fn draw_orbit_lines(
     let step_angle = 2. * PI / steps as f32;
     // let ring_color = match selected_orbit {
     
-    for (ellipse, orbital_plane, parent, self_global_transform) in query.iter() {
+    for (ellipse, orbital_plane, parent, self_global_transform, self_transform) in query.iter() {
         if let Ok((loc_ref, glob_ref)) = q_reference_frames.get(parent.0) {
             let mut positions: Vec<Vec3> = Vec::new();
 
-            let ellipse_local_rot_offset = Quat::from_axis_angle(orbital_plane.zenith_local(loc_ref), orbital_plane.periapsis_arg());
+            let periapsis_offset = Quat::from_axis_angle(Vec3::Y, orbital_plane.periapsis_arg());
 
             // let start_point = ellipse.perimeter_point(0.0);
 
@@ -31,7 +31,7 @@ pub(crate) fn draw_orbit_lines(
             for n in 0..steps {
                 let point = ellipse.perimeter_point(step_angle * n as f32);
                 let vec = Vec3::new(point.1, 0.0, point.0);
-                let rotated = ellipse_local_rot_offset * glob_ref.rotation * vec;
+                let rotated = self_global_transform.rotation * periapsis_offset * vec;
                 let position_offset = rotated + self_global_transform.translation;
 
                 // let transformed = transform.translation + ellipse_local_rot_offset * transform.rotation * ;

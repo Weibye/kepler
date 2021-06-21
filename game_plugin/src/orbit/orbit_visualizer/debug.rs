@@ -20,11 +20,6 @@ pub(crate) fn draw_reference_frame(
         for line in grid_lines {
             lines.line_colored(line.0, line.1, 0.0, color);
         }
-        
-        // AXIS
-        // lines.line_colored(transform.translation, transform.translation + transform.local_x() * size.x, 0.0, Color::RED);
-        // lines.line_colored(transform.translation, transform.translation + transform.local_y() * size.x, 0.0, Color::GREEN);
-        // lines.line_colored(transform.translation, transform.translation + transform.local_z() * size.y, 0.0, Color::BLUE);
     }
 }
 
@@ -32,10 +27,9 @@ pub fn draw_orbital_plane(
     query: Query<&GlobalTransform, With<OrbitalPlane>>,
     mut lines: ResMut<DebugLines>,
 ) {
+    let size = Vec2::new(2.5, 2.5);
+    let count = 10;
     for transform in query.iter() {
-        // if let Ok(reference)
-        let size = Vec2::new(2.5, 2.5);
-        let count = 10;
         let grid_lines = get_grid_lines(size, count, transform);
         for line in grid_lines {
             lines.line_colored(line.0, line.1, 0.0, Color::ORANGE);

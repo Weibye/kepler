@@ -25,7 +25,7 @@ impl Plugin for WorldUpdaterPlugin {
             // .add_system(increase_ascending_arg.system().before("last"))
             // .add_system(increase_inclination_arg.system().before("last"))
 
-            .add_system(rotate_refs.system())
+            // .add_system(rotate_refs.system())
             .add_system(update_orbital_plane_transform.system().label("last"))
         ;
     }

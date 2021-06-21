@@ -19,6 +19,6 @@ bevy_mod_picking = "0.4"
 smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras", branch = "main" }
 
 # bevy_egui = "0.5"
-bevy-inspector-egui = "0.5.1"
+bevy-inspector-egui = { git = "https://github.com/jakobhellermann/bevy-inspector-egui", branch = "main" }
 
 kepler = { path = "../crates/kepler", version = "0.1.0" }
