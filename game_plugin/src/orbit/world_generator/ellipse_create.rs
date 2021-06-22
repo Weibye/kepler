@@ -140,7 +140,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let child_one = commands.spawn_bundle(EllipticalOrbitBundle::new(
         5.0, 
-        0.8,
+        0.0,
         0.2,
         0.2,
         0.2))
@@ -150,7 +150,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let child_two = commands.spawn_bundle(EllipticalOrbitBundle::new(
         5.0, 
-        0.8,
+        0.0,
         0.2,
         0.2,
         0.2))
@@ -160,7 +160,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let child_three = commands.spawn_bundle(EllipticalOrbitBundle::new(
         5.0, 
-        0.8,
+        0.0,
         0.2,
         0.2,
         0.2))

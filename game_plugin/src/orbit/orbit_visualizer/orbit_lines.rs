@@ -8,8 +8,8 @@ use crate::orbit::orbit_parameters::{OrbitParameters, orbital_position_at_true_a
 use crate::player::orbit_picker::OrbitTarget;
 
 pub(crate) fn draw_orbit_lines(
-    query: Query<(&Ellipse, &OrbitalPlane, &Parent, &GlobalTransform, &Transform)>,
-    q_reference_frames: Query<(&Transform, &GlobalTransform), With<Children>>,
+    query: Query<(&Ellipse, &OrbitalPlane, &GlobalTransform)>,
+    // q_reference_frames: Query<(&Transform, &GlobalTransform), With<Children>>,
     mut lines: ResMut<DebugLines>,
     selected_orbit: Res<OrbitTarget>,
 ) {
@@ -18,39 +18,36 @@ pub(crate) fn draw_orbit_lines(
     let step_angle = 2. * PI / steps as f32;
     // let ring_color = match selected_orbit {
     
-    for (ellipse, orbital_plane, parent, self_global_transform, self_transform) in query.iter() {
-        if let Ok((loc_ref, glob_ref)) = q_reference_frames.get(parent.0) {
-            let mut positions: Vec<Vec3> = Vec::new();
+    for (ellipse, orbital_plane, self_global_transform) in query.iter() {
+        let mut positions: Vec<Vec3> = Vec::new();
 
-            let periapsis_offset = Quat::from_axis_angle(Vec3::Y, orbital_plane.periapsis_arg());
+        let periapsis_offset_rot = Quat::from_axis_angle(Vec3::Y, orbital_plane.periapsis_arg());
 
-            // let start_point = ellipse.perimeter_point(0.0);
+        let perimeter_offset_vec = Vec3::new(0.0, 0.0, 1.0) * ellipse.linear_eccentricity();
 
-            // lines.line_colored(Vec3::ZERO, Vec3::new(start_point.1, 0.0, start_point.0), 0.0, Color::WHITE);
+        for n in 0..steps {
+            let point = ellipse.perimeter_point(step_angle * n as f32);
+            let vec = Vec3::new(point.1, 0.0, point.0) - perimeter_offset_vec;
+            let rotated = self_global_transform.rotation * periapsis_offset_rot * vec;
+            let position_offset = rotated + self_global_transform.translation;
 
-            for n in 0..steps {
-                let point = ellipse.perimeter_point(step_angle * n as f32);
-                let vec = Vec3::new(point.1, 0.0, point.0);
-                let rotated = self_global_transform.rotation * periapsis_offset * vec;
-                let position_offset = rotated + self_global_transform.translation;
+            // let transformed = transform.translation + ellipse_local_rot_offset * transform.rotation * ;
+            positions.push(position_offset);
+        }
 
-                // let transformed = transform.translation + ellipse_local_rot_offset * transform.rotation * ;
-                positions.push(position_offset);
+        for n in 0..positions.len() {
+            let current = positions[n];
+            let next;
+            if n == positions.len() - 1 {
+                next = positions[0];
+            } else {
+                next = positions[n+1];
             }
-
-            for n in 0..positions.len() {
-                let current = positions[n];
-                let next;
-                if n == positions.len() - 1 {
-                    next = positions[0];
-                } else {
-                    next = positions[n+1];
-                }
-                
-                // let start = Vec3::new(current.0, 0.0, current.1);
-                // let end = Vec3::new(next.0, 0.0, next.1);
-                lines.line_colored(current, next, 0.0, color);
-            }
+            
+            // let start = Vec3::new(current.0, 0.0, current.1);
+            // let end = Vec3::new(next.0, 0.0, next.1);
+            lines.line_colored(current, next, 0.0, color);
+        }
 
             // Ascending / Desceding
             // lines.line_colored(transform.translation, transform.translation + orbital_plane.ascending_global(glob_ref), 0.0, Color::rgb(0.6, 0.0, 1.0));
@@ -66,7 +63,7 @@ pub(crate) fn draw_orbit_lines(
 
             // Forward
             // lines.line_colored(Vec3::ZERO, transform.local_z() * 3.0, 0.0, Color::rgb(1., 1.0, 0.0));
-        }
+        // }
     }
 
 
