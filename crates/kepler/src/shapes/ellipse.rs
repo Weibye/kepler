@@ -33,6 +33,14 @@ impl Ellipse {
     pub fn minor_axis(&self) -> f32 { 2.0 * self.semi_minor }
     pub fn eccentricity(&self) -> f32 { self.eccentricity }
 
+    // Setters
+    pub fn set_eccentricity(&mut self, value: f32) {
+        self.eccentricity = value;
+        self.semi_minor = Ellipse::get_semi_minor_axis(self.semi_major, self.eccentricity);
+    }
+    pub fn set_semi_minor(&mut self, value: f32) { self.semi_minor = value; }
+    pub fn set_semi_major(&mut self, value: f32) { self.semi_major = value; }
+
     pub fn area(&self) -> f32 { PI * self.semi_major * self.semi_minor }
 
     /// Returns the point on the perimeter with angle `a` from the center
@@ -61,7 +69,7 @@ impl Ellipse {
     }
 
     // Statics
-    /// Returns the semi-major axis of an ellipse using the semi-major and eccentricity
+    /// Returns the semi-minor axis of an ellipse using the semi-major and eccentricity
     pub fn get_semi_minor_axis(semi_major_axis: f32, eccentricity: f32) -> f32 {
         semi_major_axis * (1.0 - eccentricity.powf(2.0)).sqrt()
     }
