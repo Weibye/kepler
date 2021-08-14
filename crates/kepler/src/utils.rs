@@ -1,4 +1,6 @@
-use bevy_math::{Mat3, Quat, Vec3};
+use std::f32::consts::PI;
+
+use bevy_math::{Mat3, Quat, Vec2, Vec3};
 use bevy_transform::components::Transform;
 
 use crate::{Ellipse, OrbitalPlane};
@@ -22,5 +24,17 @@ pub fn get_orbital_position_relative(plane: &OrbitalPlane, ellipse: &Ellipse, an
 
     let point = ellipse.perimeter_point(angle);
     let vec = Vec3::new(point.1, 0.0, point.0) - eccentricity_offset;
-    return rotation_offset * vec;
+    
+    rotation_offset * vec
+}
+
+pub fn get_orbital_velocity(semi_major_axis: f32, period: f32) -> f32 {
+    (2.0 * PI * semi_major_axis) / period
+}
+
+pub fn get_tangent(position: Vec2) -> Vec2 {
+    let vec_a = Vec3::new(position.x, 0.0, position.y);
+    let result = Vec3::Y.cross(vec_a);
+
+    Vec2::new(result.x, result.z)
 }

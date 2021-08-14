@@ -47,7 +47,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let body_one_child = commands
         .spawn_bundle(OrbitalBodyBundle::new(
-            0.2,
+            0.5,
             0.1, 
             0.1, 
             Transform::default(), 
@@ -65,7 +65,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let body_two_child = commands
         .spawn_bundle(OrbitalBodyBundle::new(
-            0.2,
+            0.5,
             0.1, 
             0.1, 
             Transform::default(), 
@@ -83,7 +83,25 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
     
     let body_three_child = commands
         .spawn_bundle(OrbitalBodyBundle::new(
+            0.5,
+            0.1, 
+            0.1, 
+            Transform::default(), 
+            &mut meshes))
+        .id();
+
+    let body_one_grandparent = commands
+        .spawn_bundle(OrbitalBodyBundle::new(
             0.2,
+            1.0, 
+            1.0, 
+            Transform::default(), 
+            &mut meshes))
+        .id();
+    
+    let body_one_grandchild = commands
+        .spawn_bundle(OrbitalBodyBundle::new(
+            0.5,
             0.1, 
             0.1, 
             Transform::default(), 
@@ -140,7 +158,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let child_one = commands.spawn_bundle(EllipticalOrbitBundle::new(
         5.0, 
-        0.0,
+        0.5,
         0.2,
         0.2,
         0.2))
@@ -160,7 +178,7 @@ pub fn create_ellipse_bundles(mut commands: Commands, mut meshes: ResMut<Assets<
 
     let child_three = commands.spawn_bundle(EllipticalOrbitBundle::new(
         5.0, 
-        0.0,
+        0.95,
         0.2,
         0.2,
         0.2))
